@@ -159,8 +159,9 @@ more than 5 minutes, as BART and SFMTA count it.
 
 511 allows a token **60 requests an hour, for everyone listening together**, so
 the page asks only twice every three minutes. One listener uses two thirds of
-that; when the limit is reached, the page says so and the trains run on the
-timetable with their last delays for fifteen minutes before asking again. For a
+that; when the limit is reached, the trains quietly run on the timetable with
+their last delays for fifteen minutes before asking again (the status line just
+shows how long ago the last update was). For a
 public site, ask 511 for a higher limit (transitdata@511.org).
 
 ### Sweden

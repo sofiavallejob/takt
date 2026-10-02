@@ -62,11 +62,11 @@ function afterUpdate() {
 
 function status() {
   if (switching) return 'Loading…';
-  if (active && active.limitedUntil > Date.now()) return 'Live data limit reached, playing the timetable';
   if (failing) return active && !active.liveOnly ? 'Live feed unreachable, playing the timetable' : 'Live feed unreachable, retrying';
   const age = (Date.now() - lastOk) / 1000;
   const gps = gpsCount ? `, ${gpsCount} on GPS` : '';
-  return `Live, updated ${age < 5 ? 'just now' : Math.round(age) + ' s ago'}${gps}`;
+  const ago = age < 5 ? 'just now' : age < 90 ? `${Math.round(age)} s ago` : `${Math.round(age / 60)} min ago`;
+  return `Live, updated ${ago}${gps}`;
 }
 
 /** One loop for both kinds of request, checked every second: each network
@@ -79,10 +79,13 @@ function tick() {
   if (!on || document.hidden || switching || !active) return;
   const rec = active, now = Date.now(), still = () => on && active === rec && !switching;
   // A feed that answered "too many requests" is left alone for a while; the
-  // trains keep running on the timetable meanwhile.
+  // trains keep running on the timetable meanwhile, quietly: the listener is
+  // not told about the quota, only how long ago the last update was.
   if (rec.limitedUntil > now) return;
   const limited = err => {
-    if (/^429\b/.test(err?.message || '')) rec.limitedUntil = Date.now() + (rec.backoffMs || 10 * 60000);
+    if (!/^429\b/.test(err?.message || '')) return false;
+    rec.limitedUntil = Date.now() + (rec.backoffMs || 10 * 60000);
+    return true;
   };
 
   if (!busy.poll && now - (rec.lastPoll || 0) >= rec.pollMs) {
@@ -95,8 +98,7 @@ function tick() {
       lastOk = Date.now();
       failing = false;
     }, err => {
-      if (still()) failing = true;
-      limited(err);
+      if (!limited(err) && still()) failing = true;
       console.warn('poll failed', err);
     }).finally(() => { busy.poll = false; });
   }
