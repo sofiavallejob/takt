@@ -3,4 +3,4 @@
 //
 // TRAFIKVERKET_KEY: a key for Trafikverket's open API (data.trafikverket.se),
 // used for Sweden's trains. The Sweden network is hidden while it is empty.
-export const TRAFIKVERKET_KEY = '';
+export const TRAFIKVERKET_KEY = '1cef908d935548b88dddbe6eb561ecb9';

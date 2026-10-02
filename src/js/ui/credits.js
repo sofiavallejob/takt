@@ -25,5 +25,4 @@ export function initCredits() {
     if (a) a.onclick = e => { e.preventDefault(); openCredits(); };
   }
   $('credclose').onclick = closeCredits;
-  addEventListener('keydown', e => { if (e.key === 'Escape' && !$('credits').hidden) closeCredits(); });
-}
+  addEven
