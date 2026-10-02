@@ -270,4 +270,18 @@ export const CREDITS_GENERAL = `<h3>Sonification</h3>
   <h3>Credits</h3>
   <p>Built by Sofia Vallejo Budziszewski as part of doctoral research at the
   <a href="https://iem.kug.ac.at">Institute for Electronic Music and Acoustics</a>,
-  University of Music and Performing Arts Graz, Austria.</p>`;
+  University of Music and Performing Arts Graz, Austria.</p>
+  <h3>Feedback</h3>
+  <p>Comments, ideas and feedback are very welcome:
+  <a href="mailto:vallejo@iem.at">vallejo@iem.at</a>.</p>
+  <h3>Using this work</h3>
+  <p>You are free to share, publish, perform, adapt and build on Takt, for any
+  purpose, including commercially, as long as you credit it. The work (the
+  sonification, its design and its texts) is licensed under
+  <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 (CC BY 4.0)</a>;
+  the code is MIT, which also asks you to keep the author's name with it. Please credit it as:</p>
+  <p><em>Takt by Sofia Vallejo Budziszewski, Institute for Electronic Music and Acoustics,
+  University of Music and Performing Arts Graz, Austria (CC BY 4.0),
+  <a href="https://sofiavallejob.github.io/takt/">sofiavallejob.github.io/takt</a></em></p>
+  <p>The timetables, positions and maps belong to the operators and projects
+  listed above, under their own licences.</p>`;

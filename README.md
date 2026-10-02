@@ -424,6 +424,26 @@ Built by Sofia Vallejo Budziszewski as part of doctoral research at the
 University of Music and Performing Arts Graz, Austria. Inspired by Joshua Wolk's
 [Train Jazz](https://www.trainjazz.com).
 
-Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, HSL,
+Comments, ideas and feedback are very welcome: **[vallejo@iem.at](mailto:vallejo@iem.at)**.
+
+---
+
+## Using this work
+
+You are free to share, publish, perform, adapt and build on Takt, for any
+purpose, including commercially, **as long as you credit it**.
+
+* **The work** (the sonification, its design and its texts) is licensed under
+  [Creative Commons Attribution 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+* **The code** is MIT (see [LICENSE](LICENSE)), which also asks you to keep the
+  author's name with it.
+
+Please credit it as:
+
+> *Takt* by Sofia Vallejo Budziszewski, Institute for Electronic Music and
+> Acoustics, University of Music and Performing Arts Graz, Austria (CC BY 4.0),
+> https://sofiavallejob.github.io/takt
+
+The data belongs to Fintraffic, HSL,
 Trafikverket, Samtrafiken, Entur, the MBTA, the MTA, LA Metro, BART, SFMTA, 511.org and the operators and projects listed above,
 under their own licences.
