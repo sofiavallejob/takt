@@ -47,19 +47,23 @@ function afterUpdate() {
     updateSidebarState();
   }
   // The day's shape is taken while the whole day is still loaded: finished
-  // trains are dropped as the day goes on.
-  if (active.profileDate !== active.today) {
+  // trains are dropped as the day goes on. A network that only knows what is
+  // running right now (Boston) has no day to draw, and says how busy it gets.
+  if (active.liveOnly) {
+    active.profile = active.profile || new Array(144).fill(0);
+  } else if (active.profileDate !== active.today) {
     active.profile = dayProfile(active.today);
     active.profileDate = active.today;
   }
   state.S.profile = active.profile;
-  state.S.peak = Math.max(1, ...state.S.profile);
+  state.S.peak = active.peak || Math.max(1, ...state.S.profile);
   drawProfile(state.S.profile);
 }
 
 function status() {
   if (switching) return 'Loading…';
-  if (failing) return 'Live feed unreachable, retrying';
+  if (active && active.limitedUntil > Date.now()) return 'Live data limit reached, playing the timetable';
+  if (failing) return active && !active.liveOnly ? 'Live feed unreachable, playing the timetable' : 'Live feed unreachable, retrying';
   const age = (Date.now() - lastOk) / 1000;
   const gps = gpsCount ? `, ${gpsCount} on GPS` : '';
   return `Live, updated ${age < 5 ? 'just now' : Math.round(age) + ' s ago'}${gps}`;
@@ -74,6 +78,12 @@ function tick() {
   setTimeout(tick, 1000);
   if (!on || document.hidden || switching || !active) return;
   const rec = active, now = Date.now(), still = () => on && active === rec && !switching;
+  // A feed that answered "too many requests" is left alone for a while; the
+  // trains keep running on the timetable meanwhile.
+  if (rec.limitedUntil > now) return;
+  const limited = err => {
+    if (/^429\b/.test(err?.message || '')) rec.limitedUntil = Date.now() + (rec.backoffMs || 10 * 60000);
+  };
 
   if (!busy.poll && now - (rec.lastPoll || 0) >= rec.pollMs) {
     busy.poll = true;
@@ -86,6 +96,7 @@ function tick() {
       failing = false;
     }, err => {
       if (still()) failing = true;
+      limited(err);
       console.warn('poll failed', err);
     }).finally(() => { busy.poll = false; });
   }
@@ -95,6 +106,7 @@ function tick() {
     rec.lastGps = now;
     rec.positions(still).then(n => { if (still()) gpsCount = n; }, err => {
       if (still()) gpsCount = 0;
+      limited(err);
       console.warn('positions failed', err);
     }).finally(() => { busy.gps = false; });
   }
@@ -119,7 +131,7 @@ function enter(rec, view) {
   active = rec;
   state.C = {
     name: rec.name, groups: rec.groups, groupOrder: rec.groupOrder, byLine: rec.byLine, noun: rec.noun,
-    hasDelays: true, states: projectRings(rings[rec.key]), cities: {}, small: [],
+    hasDelays: rec.hasDelays !== false, states: projectRings(rings[rec.key]), cities: {}, small: [],
   };
   state.S = { lines: [], trains: [], peak: 1, profile: [] };
   state.moving = [];

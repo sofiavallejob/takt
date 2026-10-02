@@ -148,8 +148,9 @@ try {
   ok('Stockholm view', s.hash === '#sto' && s.views === false);
   if (SHOTS) await page.screenshot({ path: join(ROOT, 'test/shots/stockholm.png') });
 
-  // Helsinki metro and trams (HSL's HFP stream) and Norway (Entur).
-  for (const [view, name, min] of [['hsl', 'Helsinki metro & tram', 10], ['no', 'Norway', 40]]) {
+  // Helsinki metro and trams (HSL's HFP stream), Norway (Entur), the Boston
+  // subway (MBTA V3) and San Francisco (511.org; two of its 60 hourly requests).
+  for (const [view, name, min] of [['hsl', 'Helsinki metro & tram', 10], ['no', 'Norway', 40], ['bos', 'Boston subway', 8], ['sf', 'San Francisco', 14]]) {
     await page.evaluate(v => window.__takt.goView(v), view);
     await page.waitForFunction(v => window.__takt.state.viewKey === v, view, { timeout: 90000 });
     await page.waitForTimeout(20000);

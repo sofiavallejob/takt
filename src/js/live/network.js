@@ -57,6 +57,7 @@ function polyline(codes) {
 }
 
 function stringKey(raw) {
+  if (raw.string) return raw.string;      // the network says which string (Boston: short turns play the full line)
   if (raw.line) return 'L:' + (LINE_ALIASES[raw.line] || raw.line);
   const a = raw.rows[0].code, b = raw.rows[raw.rows.length - 1].code;
   return 'R:' + [a, b].sort().join('-');

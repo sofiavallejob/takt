@@ -100,7 +100,7 @@ export function drawProfile(profile, label = 'Trains running today') {
   d += ' L1000 40 Z';
   $('profile').innerHTML =
     `<svg viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
-  $('bar').setAttribute('aria-label', `${label}, up to ${max} at once`);
+  $('bar').setAttribute('aria-label', profile.some(v => v > 0) ? `${label}, up to ${max} at once` : label);
 }
 
 let lastKey = -1, lastMin = -1;
