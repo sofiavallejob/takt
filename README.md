@@ -306,6 +306,7 @@ timetable for today in `data/sto/`; it ends by switching to replay and back.
 
 ```
 index.html              markup for both modes; [data-only] marks what belongs to one
+assets/                 the logo (dark and light versions), the tab icons and the home-screen icon
 src/css/takt.css        all styling; colour tokens are written by theme.js
 src/js/
   main.js               boot, the Live / Replay switch, the frame loop
@@ -384,6 +385,7 @@ affecting the site.
 | **Day bar** | How many trains run across the day, and where now is on it. In replay, drag it to scrub; ← → step 15 minutes. |
 | **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Replay: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
 | **Tuning fork** | The bed chord on/off |
+| **Corners** (or **F**) | Full screen on and off. Hidden where a browser cannot show a page full screen (Safari on iPhone). |
 | **Sun / moon** | Light or dark. Your choice is remembered; without one, it follows the system. |
 | **Strings** | Every line, grouped (by category live, by operator in replay). Click one to solo it. A group's rows are built the first time it opens. |
 | **Advanced** | Tuning; what plays (live: lines crossed, arrivals, or both); how late trains sound (detuned, distorted, or both); density, volume, city labels and the effects chain. |

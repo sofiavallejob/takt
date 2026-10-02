@@ -42,6 +42,18 @@ body {
 }
 #top > * { pointer-events: auto; }
 h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.01em; }
+
+/* The logo: a dark mark on the light theme, a light one on the dark theme. */
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand .logo { flex-shrink: 0; }
+.startlogo { display: block; margin: 0 auto 10px; }
+.on-dark { display: none; }
+:root[data-theme="dark"] .on-dark { display: block; }
+:root[data-theme="dark"] .on-light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .on-dark { display: block; }
+  :root:not([data-theme="light"]) .on-light { display: none; }
+}
 #clock {
   font-size: clamp(52px, 7vw, 96px); font-weight: 300; line-height: .95;
   letter-spacing: -.03em; font-variation-settings: "opsz" 96; display: flex; margin-top: 4px;
@@ -87,12 +99,15 @@ body[data-mode="replay"] #bar { cursor: pointer; touch-action: none; }
 
 
 /* ---------- theme switch ---------- */
-#togtheme {
+#togtheme, #togfull {
   flex-shrink: 0; width: 34px; height: 34px; padding: 0;
   display: grid; place-items: center; border-radius: 999px;
   background: var(--chip); border: 1px solid var(--line); color: var(--ink); cursor: pointer;
 }
-#togtheme svg { display: block; }
+#togtheme svg, #togfull svg { display: block; }
+#togfull[hidden] { display: none; }
+#togfull .leave, #togfull[aria-pressed="true"] .enter { display: none; }
+#togfull[aria-pressed="true"] .leave { display: block; }
 #togtheme .moon { display: none; }
 :root[data-theme="dark"] #togtheme .sun { display: none; }
 :root[data-theme="dark"] #togtheme .moon { display: block; }
@@ -299,7 +314,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   #daynote { display: none; }
   #daybtns { flex-direction: row; width: 100%; }
   .dayb { min-width: 0; flex: 1; padding: 6px 9px; font-size: 12.5px; }
-  #togtheme { width: 32px; height: 32px; }
+  #togtheme, #togfull { width: 32px; height: 32px; }
   #bottom { left: 14px; right: 14px; bottom: 10px; gap: 6px; }
   #key { font-size: 11px; gap: 0 9px; }
   /* Every button on one line; the credit line goes underneath, centred. */

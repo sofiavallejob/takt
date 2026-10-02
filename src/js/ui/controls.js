@@ -51,6 +51,34 @@ export function initControls(onSpace) {
   // --- theme ----------------------------------------------------------------
   $('togtheme').onclick = toggleTheme;
 
+  // --- full screen ----------------------------------------------------------
+  // The whole page, so the map, the clock and the controls all come along.
+  // Hidden where a page cannot go full screen (Safari on iPhone).
+  const doc = document, root = doc.documentElement;
+  const fsOn = () => doc.fullscreenElement || doc.webkitFullscreenElement;
+  const canFs = doc.fullscreenEnabled || doc.webkitFullscreenEnabled;
+  const toggleFs = () => {
+    if (fsOn()) (doc.exitFullscreen || doc.webkitExitFullscreen).call(doc);
+    else (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+  };
+  const syncFs = () => {
+    const on = !!fsOn();
+    $('togfull').setAttribute('aria-pressed', String(on));
+    $('togfull').setAttribute('aria-label', on ? 'Leave full screen' : 'Full screen');
+    $('togfull').title = on ? 'Leave full screen (F)' : 'Full screen (F)';
+    setTimeout(resize, 100);
+  };
+  if (canFs) {
+    $('togfull').hidden = false;
+    $('togfull').onclick = toggleFs;
+    doc.addEventListener('fullscreenchange', syncFs);
+    doc.addEventListener('webkitfullscreenchange', syncFs);
+    addEventListener('keydown', e => {
+      if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey && !e.altKey
+        && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) { e.preventDefault(); toggleFs(); }
+    });
+  }
+
   // --- strings panel --------------------------------------------------------
   $('togside').onclick = () => {
     const open = $('side').classList.toggle('closed') === false;
