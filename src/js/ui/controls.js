@@ -15,17 +15,17 @@ export function setListening(on) {
   $('play').title = on ? 'Stop listening' : 'Listen';
 }
 
-/** The views of the current network; hidden when it only has one. */
+/** The views of the current country; hidden when it only has one. */
 export function renderViews(keys, setView) {
   $('views').innerHTML = keys.map(k => `<button data-v="${k}">${VIEWS[k].name}</button>`).join('');
   $('views').hidden = keys.length < 2;
   document.querySelectorAll('#views button').forEach(b => { b.onclick = () => setView(b.dataset.v); });
 }
 
-export function initControls(networks, setNetwork) {
-  // --- networks -------------------------------------------------------------
-  $('ctry').innerHTML = networks.map(([k, name]) => `<button data-c="${k}">${name}</button>`).join('');
-  document.querySelectorAll('#ctry button').forEach(b => { b.onclick = () => setNetwork(b.dataset.c); });
+export function initControls(countries, pickCountry) {
+  // --- countries ------------------------------------------------------------
+  $('ctry').innerHTML = countries.map(([k, name]) => `<button data-c="${k}">${name}</button>`).join('');
+  document.querySelectorAll('#ctry button').forEach(b => { b.onclick = () => pickCountry(b.dataset.c); });
 
   // --- transport ------------------------------------------------------------
   $('play').onclick = () => setListening(!state.playing);

@@ -25,7 +25,7 @@ const PALETTES = {
     halo: 'rgba(17,25,33,.95)',
     trail: 'rgba(226,233,240,.35)',
     flash: 'rgba(226,233,240,.15)',
-    netAlpha: 0.6, tailAlpha: 1.4,
+    netAlpha: 0.6, tailAlpha: 1.2,
   },
 };
 

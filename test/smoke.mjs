@@ -114,8 +114,22 @@ try {
   const plucked = await page.evaluate(() => window.__takt.state.S.lines.filter(g => g.vib && performance.now() - g.vib.t < 3000).length);
   ok('hand strum', plucked > 0, `${plucked} strings`);
 
+  // Sweden: every train, from Trafikverket (only when a key is set).
+  // Without a key, Sweden opens on the metro instead.
+  await page.click('#ctry button[data-c="se"]');
+  await page.waitForFunction(() => window.__takt.active.key !== 'fi', null, { timeout: 90000 });
+  if (await page.evaluate(() => window.__takt.active.key === 'se')) {
+    await page.waitForTimeout(8000);
+    const w = await page.evaluate(() => ({
+      strings: window.__takt.state.S.lines.length, moving: window.__takt.state.moving.length,
+      gps: window.__takt.state.moving.filter(t => t.gps).length, clock: document.querySelector('#clock').textContent,
+    }));
+    ok('Sweden strings', w.strings > 100, `${w.strings} strings`);
+    ok('Sweden trains moving or night', w.moving > 0 || /^0[1-4]/.test(w.clock), `${w.moving} moving at ${w.clock}, ${w.gps} on GPS`);
+  }
+
   // Stockholm: the metro, from GTFS Sweden 3 Realtime and the bundled timetable.
-  await page.click('#ctry button[data-c="sto"]');
+  await page.evaluate(() => window.__takt.goView('sto'));
   await page.waitForFunction(() => window.__takt.active.key === 'sto', null, { timeout: 30000 });
   await page.waitForTimeout(20000);
   const s = await page.evaluate(() => {
@@ -131,7 +145,7 @@ try {
   ok('Stockholm trains moving or night', s.moving > 0 || /^0[1-4]/.test(s.clock), `${s.moving} moving at ${s.clock} Stockholm`);
   ok('Stockholm live times', s.live > 0 || !s.moving, `${s.live} with actual times`);
   ok('Stockholm on GPS', s.gps > 0 || !s.moving, `${s.gps} on GPS`);
-  ok('Stockholm view', s.hash === '#sto' && s.views === true);
+  ok('Stockholm view', s.hash === '#sto' && s.views === false);
   if (SHOTS) await page.screenshot({ path: join(ROOT, 'test/shots/stockholm.png') });
 
   await page.click('#ctry button[data-c="fi"]');

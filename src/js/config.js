@@ -41,7 +41,7 @@ export const VIEWS = {
     small: ['KV', 'PRI', 'KAJ', 'SK', 'LH'],
   },
   sto: {
-    name: 'Stockholm',
+    name: 'Stockholm metro',
     box: [17.86, 59.215, 18.13, 59.42],
     cities: ['T-Centralen', 'Slussen', 'Gullmarsplan', 'Hässelby strand', 'Farsta strand', 'Skarpnäck',
       'Hagsätra', 'Akalla', 'Hjulsta', 'Mörby centrum', 'Norsborg', 'Fruängen', 'Ropsten', 'Liljeholmen', 'Alvik'],

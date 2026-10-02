@@ -17,7 +17,7 @@ import { buildKey } from './ui/legend.js';
 import { buildGrid } from './geom.js';
 import { net, useNet, prune, retune, dayProfile, projectRings, viewFor, minsNow } from './live/network.js';
 import { setZone } from './live/clock.js';
-import { NETWORKS, ORDER, networkOfView } from './live/networks.js';
+import { NETWORKS, COUNTRIES, countryOf, networkOfView } from './live/networks.js';
 
 let active = null, switching = false;
 let lastOk = 0, failing = false, gpsCount = 0;
@@ -128,13 +128,14 @@ function enter(rec, view) {
   state.soloLine = null;
   net.dirty = true;
   if ($('ssearch')) $('ssearch').value = '';
+  const country = countryOf(rec.key);
   document.querySelectorAll('#ctry button').forEach(b =>
-    b.setAttribute('aria-pressed', String(b.dataset.c === rec.key)));
+    b.setAttribute('aria-pressed', String(b.dataset.c === country.key)));
   document.title = `Takt: ${rec.name}, live`;
   clearSlots();
   resetHour();
   buildKey();
-  renderViews(rec.views, setView);
+  renderViews(country.views, goView);
   setView(view);
   afterUpdate();
   lastOk = Date.now();
@@ -143,19 +144,31 @@ function enter(rec, view) {
   rec.lastPoll = rec.lastGps = 0;          // ask for news straight away
 }
 
-async function setNetwork(k) {
+/** Any view of any country: a view of another network switches to it first. */
+function goView(v) {
+  const k = networkOfView(v);
+  if (NETWORKS[k] === active) setView(v); else setNetwork(k, v);
+}
+
+const pickCountry = c => goView(COUNTRIES.find(x => x.key === c).views[0]);
+
+async function setNetwork(k, view) {
   if (switching || !NETWORKS[k] || NETWORKS[k] === active) return;
-  const rec = NETWORKS[k], prev = active, btn = document.querySelector(`#ctry button[data-c="${k}"]`);
+  const rec = NETWORKS[k], prev = active;
+  view = view || rec.views[0];
+  // The pressed button shows the wait: the view within a country, else the country.
+  const btn = (countryOf(k) === countryOf(prev.key) && document.querySelector(`#views button[data-v="${view}"]`))
+    || document.querySelector(`#ctry button[data-c="${countryOf(k).key}"]`);
   switching = true;
   const label = btn.textContent;
   btn.textContent = '…';
   try {
     await prepare(rec);
-    enter(rec, rec.views[0]);
+    enter(rec, view);
   } catch (err) {
     console.error(err);
     prepare(prev);                       // back to what was playing
-    $('hint').textContent = `${rec.name} could not be loaded: ${err.message}`;
+    $('hint').textContent = `${VIEWS[view].name} could not be loaded: ${err.message}`;
   } finally {
     btn.textContent = label;
     switching = false;
@@ -195,7 +208,7 @@ async function start(rec, view) {
 
   initCanvas();
   initAdvanced();
-  initControls(ORDER.map(k => [k, NETWORKS[k].name]), setNetwork);
+  initControls(COUNTRIES.map(c => [c.key, c.name]), pickCountry);
   enter(rec, view);
 
   initAudio();
@@ -215,7 +228,7 @@ async function start(rec, view) {
   $('start').remove();
 
   // Inspection hook for the smoke test and the browser console.
-  window.__takt = { state, get net() { return net; }, get active() { return active; }, setView, setNetwork, resize, audio: { AC, master, out } };
+  window.__takt = { state, get net() { return net; }, get active() { return active; }, setView, setNetwork, goView, resize, audio: { AC, master, out } };
 
   requestAnimationFrame(frame);
   tick();

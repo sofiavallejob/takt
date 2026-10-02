@@ -136,7 +136,7 @@ function span(p2, g, a, b) {
 
 // A train's tail covers where it was over the last few minutes, so motion that
 // is too slow to see on a national map still reads as direction and speed.
-const TAIL_MIN = 20, TAIL_PX = 60, TAIL_A = [0.1, 0.22, 0.38, 0.6], TAIL_W = [0.45, 0.6, 0.8, 1];
+const TAIL_MIN = 12, TAIL_PX = 32, TAIL_A = [0.04, 0.08, 0.13, 0.2], TAIL_W = [0.4, 0.55, 0.75, 1];
 
 export let trail = [];
 export function pushTrail(p) { trail.push(p); }
@@ -187,7 +187,7 @@ export function draw(now) {
     ctx.strokeStyle = gr.col;
     tails[i].forEach((p2, j) => {
       ctx.globalAlpha = TAIL_A[j] * theme.tailAlpha;
-      ctx.lineWidth = Math.max(3, 6 * k * rr) * TAIL_W[j];
+      ctx.lineWidth = Math.max(2, 3.5 * k * rr) * TAIL_W[j];
       ctx.stroke(p2);
     });
   });
