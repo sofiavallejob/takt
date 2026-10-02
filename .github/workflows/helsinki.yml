@@ -1,0 +1,36 @@
+# Rebuilds the Helsinki metro and tram timetable every morning.
+#
+# The live feed (HSL's HFP) names journeys by route, direction and start time,
+# so data/hel/ has to follow HSL's GTFS of the day. The GTFS needs no key.
+
+name: Helsinki timetable
+
+on:
+  schedule:
+    - cron: '45 2 * * *'      # 05:45 in Helsinki in summer, 04:45 in winter
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download HSL GTFS
+        run: curl -sSfL --retry 3 -o hsl.zip https://infopalvelut.storage.hsldev.com/gtfs/hsl.zip
+      - name: Cut it down to the metro and trams
+        run: python3 tools/build_hel.py --zip hsl.zip
+      - name: Commit
+        run: |
+          rm hsl.zip
+          git config user.name 'takt-bot'
+          git config user.email 'takt-bot@users.noreply.github.com'
+          git add data/hel
+          git diff --cached --quiet || git commit -m "Helsinki timetable $(date -u +%F)"
+          git pull --rebase
+          git push

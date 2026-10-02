@@ -11,6 +11,7 @@ import { TRAFIKVERKET_KEY } from '../keys.js';
 import { createNet, setStations, ingest, applyFixes } from './network.js';
 import { dateAt, shiftDate, minuteOfDay } from './clock.js';
 import { actualDist } from '../geom.js';
+import { RouteGraph, SpeedFromFixes } from './rail.js';
 
 const API = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
 
@@ -113,7 +114,8 @@ export const se = {
   rows: new Map(),     // train id -> Map(ActivityId -> announcement)
   meta: new Map(),     // train id -> { product, traffic, oper }
   edits: 0,            // bumped on every update, so rebuilt trains count as new versions
-  lastFix: new Map(),  // train id -> last GPS fix, for a speed the feed does not give
+  speeds: new SpeedFromFixes(),  // the feed gives no speed
+  graph: null,
 
   async load() {
     this.today = dateAt(Date.now());
@@ -179,7 +181,7 @@ export const se = {
       actual: ms(a.TimeAtLocation),
       estimate: ms(a.EstimatedTimeAtLocation),
     })).sort((a, b) => a.plan - b.plan || a.dep - b.dep);
-    this.fillGaps(rows);
+    this.graph?.fill(rows);
     const cat = catOf(m.product, m.traffic, m.oper);
     const [date, op] = id.split('/'), number = m.number || op;
     return {
@@ -190,84 +192,12 @@ export const se = {
     };
   },
 
-  /** The stations each stopping train runs between, as a graph of hops: the
-   *  rail network as the timetable knows it. */
+  /** The rail network as today's trains run it, for routing expresses. */
   buildGraph() {
-    const st = this.net.stations, g = new Map();
-    const link = (a, b) => {
-      const A = st.get(a), B = st.get(b);
-      if (!A || !B || a === b) return;
-      const km = Math.hypot(A.x - B.x, A.y - B.y);
-      for (const [p, q] of [[a, b], [b, a]]) {
-        if (!g.has(p)) g.set(p, new Map());
-        g.get(p).set(q, km);
-      }
-    };
-    for (const m of this.rows.values()) {
-      const seq = [...m.values()].sort((x, y) => ms(x.AdvertisedTimeAtLocation) - ms(y.AdvertisedTimeAtLocation))
-        .map(a => a.LocationSignature);
-      for (let i = 1; i < seq.length; i++) link(seq[i - 1], seq[i]);
-    }
-    this.graph = g;
-    this.via = new Map();
-  },
-
-  /** The stations between a and b on the way stopping trains go, or none
-   *  when there is no way much longer than the straight line. */
-  between(a, b) {
-    const key = a + '>' + b;
-    if (this.via.has(key)) return this.via.get(key);
-    const st = this.net.stations, A = st.get(a), B = st.get(b);
-    let out = [];
-    const direct = A && B ? Math.hypot(A.x - B.x, A.y - B.y) : 0;
-    if (direct > 12 && this.graph.has(a)) {
-      // Dijkstra, leaving out the express hop itself. Long hops cost more than
-      // their length, so the way through every small station wins over other
-      // expresses' hops. Track bends more over a long hop than a short one, so
-      // a long one may take a longer way round.
-      const limit = direct * (direct > 60 ? 1.45 : 1.2);
-      const cost = new Map([[a, 0]]), real = new Map([[a, 0]]), prev = new Map(), open = [[0, a]];
-      while (open.length) {
-        open.sort((x, y) => x[0] - y[0]);
-        const [c, u] = open.shift();
-        if (u === b) break;
-        if (c > (cost.get(u) ?? Infinity)) continue;
-        for (const [v, km] of this.graph.get(u) || []) {
-          if (u === a && v === b) continue;
-          const nc = c + km + km * km / 30, nr = real.get(u) + km;
-          if (nr > limit || nc >= (cost.get(v) ?? Infinity)) continue;
-          cost.set(v, nc); real.set(v, nr); prev.set(v, u); open.push([nc, v]);
-        }
-      }
-      if (prev.has(b)) {
-        for (let u = prev.get(b); u !== a; u = prev.get(u)) out.push(u);
-        out.reverse();
-      }
-    }
-    this.via.set(key, out);
-    return out;
-  },
-
-  /** Put the stations an express passes without stopping into its rows, timed
-   *  by distance, so its route follows the line instead of cutting across. */
-  fillGaps(rows) {
-    if (!this.graph) return;
-    const st = this.net.stations;
-    for (let i = rows.length - 1; i > 0; i--) {
-      const r0 = rows[i - 1], r1 = rows[i];
-      if (r0.code === r1.code) continue;
-      const via = this.between(r0.code, r1.code);
-      if (!via.length) continue;
-      const pts = [r0.code, ...via, r1.code].map(c => st.get(c));
-      const cum = [0];
-      for (let k = 1; k < pts.length; k++) cum.push(cum[k - 1] + Math.hypot(pts[k].x - pts[k - 1].x, pts[k].y - pts[k - 1].y));
-      const L = cum[cum.length - 1] || 1;
-      const add = via.map((code, k) => ({
-        code, dep: true, stop: false, commercial: false, cancelled: r1.cancelled,
-        plan: r0.plan + (r1.plan - r0.plan) * cum[k + 1] / L, actual: NaN, estimate: NaN,
-      }));
-      rows.splice(i, 0, ...add);
-    }
+    const seqs = [...this.rows.values()].map(m => [...m.values()]
+      .sort((x, y) => ms(x.AdvertisedTimeAtLocation) - ms(y.AdvertisedTimeAtLocation))
+      .map(a => a.LocationSignature));
+    this.graph = new RouteGraph(this.net.stations, seqs);
   },
 
   async update(still) {
@@ -302,15 +232,7 @@ export const se = {
     const fixes = [];
     for (const f of latest.values()) {
       const [lon, lat] = point(f.wkt);
-      // No speed in this feed: take it from the last two fixes.
-      const prev = this.lastFix.get(f.id);
-      let speed = prev?.speed || 0;
-      if (prev && f.at - prev.at > 5000) {
-        const km = Math.hypot((lon - prev.lon) * 111.32 * Math.cos(lat * Math.PI / 180), (lat - prev.lat) * 110.57);
-        speed = Math.min(250, km / ((f.at - prev.at) / 3600e3));
-      }
-      if (!prev || f.at > prev.at) this.lastFix.set(f.id, { at: f.at, lon, lat, speed });
-      fixes.push({ id: f.id, lon, lat, speed, at: f.at });
+      fixes.push({ id: f.id, lon, lat, speed: this.speeds.at(f.id, lon, lat, f.at), at: f.at });
     }
     return applyFixes(fixes, actualDist);
   },

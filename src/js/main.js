@@ -120,7 +120,7 @@ function setView(k) {
 function enter(rec, view) {
   active = rec;
   state.C = {
-    name: rec.name, groups: rec.groups, groupOrder: rec.groupOrder, byLine: rec.byLine,
+    name: rec.name, groups: rec.groups, groupOrder: rec.groupOrder, byLine: rec.byLine, noun: rec.noun,
     hasDelays: true, states: projectRings(rings[rec.key]), cities: {}, small: [],
   };
   state.S = { lines: [], trains: [], peak: 1, profile: [] };

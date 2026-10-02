@@ -41,8 +41,8 @@ export const VIEWS = {
     small: ['KV', 'PRI', 'KAJ', 'SK', 'LH'],
   },
   sto: {
-    name: 'Stockholm metro',
-    box: [17.86, 59.215, 18.13, 59.42],
+    name: 'Stockholm metro & tram',
+    box: [17.82, 59.2, 18.25, 59.42],
     cities: ['T-Centralen', 'Slussen', 'Gullmarsplan', 'Hässelby strand', 'Farsta strand', 'Skarpnäck',
       'Hagsätra', 'Akalla', 'Hjulsta', 'Mörby centrum', 'Norsborg', 'Fruängen', 'Ropsten', 'Liljeholmen', 'Alvik'],
     small: ['Liljeholmen', 'Gullmarsplan', 'Alvik'],
@@ -65,6 +65,27 @@ export const VIEWS = {
     cities: ['Mc', 'Lu', 'Hb', 'Cr', 'Y', 'Trg', 'Hm', 'Lkö', 'Ä', 'Dk.kh'],
     small: ['Trg', 'Lkö', 'Ä', 'Y'],
   },
+  no: {
+    name: 'Norway',
+    box: [4.6, 57.9, 19.5, 68.6],
+    cities: ['Oslo S', 'Bergen', 'Trondheim S', 'Stavanger', 'Kristiansand', 'Bodø', 'Lillehammer', 'Hamar',
+      'Drammen', 'Skien', 'Halden', 'Åndalsnes', 'Røros', 'Mo i Rana', 'Steinkjer', 'Dombås', 'Narvik'],
+    small: ['Hamar', 'Drammen', 'Skien', 'Halden', 'Åndalsnes', 'Steinkjer', 'Dombås'],
+  },
+  osl: {
+    name: 'Oslo region',
+    box: [9.9, 59.25, 11.6, 60.45],
+    cities: ['Oslo S', 'Oslo lufthavn', 'Lillestrøm', 'Drammen', 'Asker', 'Ski', 'Moss', 'Eidsvoll',
+      'Jessheim', 'Sandvika', 'Spikkestad', 'Kongsberg', 'Tønsberg', 'Hønefoss'],
+    small: ['Sandvika', 'Spikkestad', 'Jessheim', 'Asker'],
+  },
+  hsl: {
+    name: 'Helsinki metro & tram',
+    box: [24.63, 60.135, 25.2, 60.255],
+    cities: ['Rautatientori', 'Kamppi', 'Itäkeskus', 'Vuosaari', 'Mellunmäki', 'Tapiola', 'Kivenlahti',
+      'Keilaniemi', 'Pasilan asema', 'Kalasatama', 'Arabianranta', 'Hakaniemi', 'Ruoholahti', 'Herttoniemi'],
+    small: ['Arabianranta', 'Hakaniemi', 'Ruoholahti', 'Kalasatama', 'Keilaniemi', 'Herttoniemi'],
+  },
   hel: {
     name: 'Helsinki',
     box: [24.4, 60.1, 25.3, 60.77],        // lon0, lat0, lon1, lat1
@@ -80,7 +101,7 @@ export const CITY_NAMES = {
   SK: 'Seinäjoki', KV: 'Kouvola', PRI: 'Pori', KAJ: 'Kajaani', KLI: 'Kolari',
   PSL: 'Pasila', TKL: 'Tikkurila', LEN: 'Airport', KE: 'Kerava', JP: 'Järvenpää',
   RI: 'Riihimäki', LPV: 'Leppävaara', EPO: 'Espoo', KKN: 'Kirkkonummi', HY: 'Hyvinkää',
-  KLH: 'Kauklahti',
+  KLH: 'Kauklahti', 'Pasilan asema': 'Pasila',
 };
 
 /** Commuter line letters that are one string. The ring line runs as I one way
@@ -100,9 +121,21 @@ export const CREDITS_SE = `<h3>Sweden, live</h3><ul>
   <li>Regions: <a href="https://www.geoboundaries.org">geoBoundaries</a> SWE ADM1, from OpenStreetMap (ODbL)</li>
   <li>Routes are drawn station to station, not along the track. Replacement buses are left out.</li></ul>`;
 
-export const CREDITS_STO = `<h3>Stockholm metro, live</h3><ul>
+export const CREDITS_NO = `<h3>Norway, live</h3><ul>
+  <li>Trains, timetables, expected and actual times, cancellations: <a href="https://developer.entur.org">Entur</a> journey planner (NLOD)</li>
+  <li>Train GPS positions: Entur vehicle positions (NLOD)</li>
+  <li>Regions: <a href="https://www.geoboundaries.org">geoBoundaries</a> NOR ADM1, from OpenStreetMap (ODbL)</li>
+  <li>Routes are drawn station to station, not along the track.</li></ul>`;
+
+export const CREDITS_HEL = `<h3>Helsinki metro and trams, live</h3><ul>
+  <li>Live positions and delays: <a href="https://digitransit.fi/en/developers/apis/5-realtime-api/vehicle-positions/high-frequency-positioning/">HSL high-frequency positioning</a> (CC BY 4.0)</li>
+  <li>Timetable and stops: <a href="https://www.hsl.fi/en/hsl/open-data">HSL GTFS</a> (CC BY 4.0), cut to the metro and trams once a day</li>
+  <li>Municipal outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> FIN ADM3, from OpenStreetMap (ODbL)</li>
+  <li>Lines are drawn stop to stop; the two platforms of a stop are one point.</li></ul>`;
+
+export const CREDITS_STO = `<h3>Stockholm metro and trams, live</h3><ul>
   <li>Live trip updates and vehicle positions: <a href="https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/">GTFS Sweden 3 Realtime</a>, Samtrafiken via Trafiklab (CC0)</li>
-  <li>Timetable and stations: GTFS Sweden 3 static data, Samtrafiken via Trafiklab (CC0), cut to the tunnelbana once a day</li>
+  <li>Timetable and stations: GTFS Sweden 3 static data, Samtrafiken via Trafiklab (CC0), cut to the tunnelbana and the trams once a day</li>
   <li>Municipal outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> SWE ADM2, from OpenStreetMap (ODbL)</li>
   <li>Lines are drawn station to station, not along the tunnels.</li></ul>`;
 

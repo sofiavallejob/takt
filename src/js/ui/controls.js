@@ -104,7 +104,7 @@ export function updateClock(updateNotes, status) {
   const m = Math.floor(state.T);
   const s = String((m / 60) | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
   $('clock').innerHTML = [...s].map(ch => `<span${ch === ':' ? ' class="c"' : ''}>${ch}</span>`).join('');
-  $('tcount').textContent = `${state.moving.length.toLocaleString()} trains moving`;
+  $('tcount').textContent = `${state.moving.length.toLocaleString()} ${state.C.noun || 'trains'} moving`;
   $('tcountsub').textContent = status();
   const p = state.T / 1440 * 100;
   $('bar').querySelector('.knob').style.left = p + '%';

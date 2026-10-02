@@ -1,12 +1,12 @@
 // Data sources. Reachable from the start screen (before any audio exists) and
 // from the footer, so this module deliberately depends on nothing but config.
 
-import { CREDITS_FI, CREDITS_SE, CREDITS_STO, CREDITS_GENERAL } from '../config.js';
+import { CREDITS_FI, CREDITS_HEL, CREDITS_SE, CREDITS_STO, CREDITS_NO, CREDITS_GENERAL } from '../config.js';
 import { TRAFIKVERKET_KEY } from '../keys.js';
 import { $ } from '../state.js';
 
 function render() {
-  $('credtext').innerHTML = CREDITS_FI + (TRAFIKVERKET_KEY ? CREDITS_SE : '') + CREDITS_STO + CREDITS_GENERAL;
+  $('credtext').innerHTML = CREDITS_FI + CREDITS_HEL + (TRAFIKVERKET_KEY ? CREDITS_SE : '') + CREDITS_STO + CREDITS_NO + CREDITS_GENERAL;
 }
 
 export function openCredits() {

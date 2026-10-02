@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Cut the national GTFS Sweden 3 feed down to the Stockholm metro, one file
-per service date.
+"""Cut the national GTFS Sweden 3 feed down to the Stockholm metro and trams,
+one file per service date.
 
 The live feed (GTFS Sweden 3 Realtime) names trips by the ids in the static
 feed of the same day, so the page needs that day's timetable. This script is
@@ -10,7 +10,7 @@ run once a day by .github/workflows/stockholm.yml; it can also be run by hand:
     python3 tools/build_sto.py --zip sweden.zip --dates 2026-10-01 2026-10-02
 
 Output, in data/sto/:
-    YYYY-MM-DD.json   stations, lines and every metro trip running that day
+    YYYY-MM-DD.json   stations, lines and every metro and tram trip running that day
     index.json        the dates available, newest last
 """
 
@@ -20,7 +20,14 @@ from zoneinfo import ZoneInfo
 
 METRO_LINES = {'10': 'blue', '11': 'blue', '13': 'red', '14': 'red',
                '17': 'green', '18': 'green', '19': 'green'}
+# Spårväg City, Nockebybanan, Lidingöbanan, Tvärbanan.
+TRAM_LINES = {'7', '12', '21', '30', '31'}
 SL_AGENCY = '505000000000000001'
+
+
+def is_tram(route_type):
+    """Plain GTFS says 0 for a tram; the extended types Samtrafiken uses say 900-906."""
+    return route_type == '0' or (len(route_type) == 3 and route_type.startswith('9'))
 KEEP_DAYS = 3
 
 
@@ -61,13 +68,18 @@ def main():
     z = zipfile.ZipFile(a.zip)
     feed = next(rows(z, 'feed_info.txt'), {}).get('feed_version', '')
 
-    routes = {r['route_id']: r['route_short_name'] for r in rows(z, 'routes.txt')
-              if r['agency_id'] == SL_AGENCY and r['route_type'] == '401'
-              and r['route_short_name'] in METRO_LINES}
+    routes = {}
+    for r in rows(z, 'routes.txt'):
+        if r['agency_id'] != SL_AGENCY:
+            continue
+        name = r['route_short_name']
+        if (r['route_type'] == '401' and name in METRO_LINES) or (is_tram(r['route_type']) and name in TRAM_LINES):
+            routes[r['route_id']] = name
     trips_all = {r['trip_id']: r for r in rows(z, 'trips.txt') if r['route_id'] in routes}
-    print(f'{len(routes)} metro routes, {len(trips_all)} metro trips in the feed', file=sys.stderr)
+    print(f'{len(routes)} metro and tram routes ({", ".join(sorted(set(routes.values()), key=int))}), '
+          f'{len(trips_all)} trips in the feed', file=sys.stderr)
 
-    # Every stop time of every metro trip, read once for all dates.
+    # Every stop time of every metro and tram trip, read once for all dates.
     times = {}
     for r in rows(z, 'stop_times.txt'):
         if r['trip_id'] in trips_all:

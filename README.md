@@ -198,9 +198,10 @@ read-only key and watch its quota at [data.trafikverket.se](https://data.trafikv
 | --- | --- |
 | **Drag on the map** | Play the network by hand. Crossed strings are strummed low to high. |
 | **Speaker** (or **Space**) | Mute / unmute. The trains keep moving; only the sound stops |
-| **Finland / Sweden / Stockholm** | The network (Sweden only with a key, see above) |
-| **Finland / Helsinki** | In Finland: the whole country, or the commuter area around Helsinki |
-| **Sweden / Mälardalen / Skåne** | In Sweden: the whole country, the Stockholm–Mälaren region, or the south |
+| **Finland / Sweden / Norway** | The country |
+| **Finland / Helsinki / Helsinki metro & tram** | In Finland: the whole country, the commuter trains around Helsinki, or HSL's metro and trams |
+| **Sweden / Mälardalen / Skåne / Stockholm metro & tram** | In Sweden: the whole country (with a Trafikverket key, see above), the Stockholm–Mälaren region, the south, or SL's metro and trams |
+| **Norway / Oslo region** | In Norway: the whole country, or the lines around Oslo |
 | **Tuning fork** | The bed chord on/off |
 | **Sun / moon** | Light or dark |
 | **Strings** | Every line, grouped into long distance, regional and commuter. Click one to solo it. |
@@ -221,6 +222,11 @@ now is on it.
 | Regions | [geoBoundaries](https://www.geoboundaries.org) FIN ADM1, from OpenStreetMap (ODbL) |
 | Sweden's trains, live | [Trafikverket open API](https://data.trafikverket.se) |
 | Sweden regions | geoBoundaries SWE ADM1, from OpenStreetMap (ODbL) |
+| Helsinki metro and trams, live | HSL high-frequency positioning (HFP, MQTT over WebSocket), no key (CC BY 4.0) |
+| Helsinki timetable | [HSL GTFS](https://www.hsl.fi/en/hsl/open-data), cut daily by `tools/build_hel.py` (CC BY 4.0) |
+| Helsinki outlines | geoBoundaries FIN ADM3, from OpenStreetMap (ODbL) |
+| Norway's trains, live | [Entur](https://developer.entur.org) journey planner and vehicle positions, no key (NLOD) |
+| Norway regions | geoBoundaries NOR ADM1, from OpenStreetMap (ODbL) |
 | Stockholm metro, live | GTFS Sweden 3 Realtime, Samtrafiken via Trafiklab (CC0) |
 | Stockholm metro timetable | GTFS Sweden 3 static, Samtrafiken via Trafiklab (CC0) |
 | Stockholm outlines | geoBoundaries SWE ADM2, from OpenStreetMap (ODbL) |
@@ -233,5 +239,5 @@ Built by Sofia Vallejo Budziszewski as part of doctoral research at the
 [Institute of Electronic Music and Acoustics (IEM)](https://iem.kug.ac.at), University of
 Music and Performing Arts Graz.
 
-Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, Trafikverket, Samtrafiken and
+Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, HSL, Trafikverket, Samtrafiken, Entur and
 the projects listed above, under their own licences.

@@ -141,12 +141,26 @@ try {
       views: document.querySelector('#views').hidden,
     };
   });
-  ok('Stockholm metro strings', s.strings === 7, `${s.strings} lines`);
+  ok('Stockholm metro strings', s.strings >= 7, `${s.strings} lines`);
   ok('Stockholm trains moving or night', s.moving > 0 || /^0[1-4]/.test(s.clock), `${s.moving} moving at ${s.clock} Stockholm`);
   ok('Stockholm live times', s.live > 0 || !s.moving, `${s.live} with actual times`);
   ok('Stockholm on GPS', s.gps > 0 || !s.moving, `${s.gps} on GPS`);
   ok('Stockholm view', s.hash === '#sto' && s.views === false);
   if (SHOTS) await page.screenshot({ path: join(ROOT, 'test/shots/stockholm.png') });
+
+  // Helsinki metro and trams (HSL's HFP stream) and Norway (Entur).
+  for (const [view, name, min] of [['hsl', 'Helsinki metro & tram', 10], ['no', 'Norway', 40]]) {
+    await page.evaluate(v => window.__takt.goView(v), view);
+    await page.waitForFunction(v => window.__takt.state.viewKey === v, view, { timeout: 90000 });
+    await page.waitForTimeout(20000);
+    const r = await page.evaluate(() => {
+      const { state } = window.__takt;
+      return { strings: state.S.lines.length, moving: state.moving.length, gps: state.moving.filter(t => t.gps).length,
+        clock: document.querySelector('#clock').textContent };
+    });
+    ok(`${name} strings`, r.strings >= min, `${r.strings} strings`);
+    ok(`${name} moving or night`, r.moving > 0 || /^0[1-4]/.test(r.clock), `${r.moving} moving at ${r.clock}, ${r.gps} on GPS`);
+  }
 
   await page.click('#ctry button[data-c="fi"]');
   await page.waitForFunction(() => window.__takt.active.key === 'fi', null, { timeout: 30000 });

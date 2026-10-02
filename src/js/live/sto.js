@@ -1,4 +1,4 @@
-// Stockholm: the tunnelbana, live from Samtrafiken's GTFS Sweden 3 Realtime.
+// Stockholm: the tunnelbana and the trams, live from Samtrafiken's GTFS Sweden 3 Realtime.
 //
 // The live feed names trips by the ids in the national static timetable of
 // the same day, so the timetable is cut down to the metro once a day
@@ -20,14 +20,17 @@ const FAMILIES = [
   { name: 'Blue line', col: '#0089ca' },
   { name: 'Red line', col: '#e3242b' },
   { name: 'Green line', col: '#4ba946' },
+  { name: 'Tram', col: '#a0703c' },
 ];
-const FAMILY_OF = { 10: 0, 11: 0, 13: 1, 14: 1, 17: 2, 18: 2, 19: 2 };
+const FAMILY_OF = { 10: 0, 11: 0, 13: 1, 14: 1, 17: 2, 18: 2, 19: 2, 7: 3, 12: 3, 21: 3, 30: 3, 31: 3 };
+const TRAM_NAMES = { 7: 'Spårväg City', 12: 'Nockebybanan', 21: 'Lidingöbanan', 30: 'Tvärbanan', 31: 'Tvärbanan' };
 
 const iso = ymd => `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
 
 export const sto = {
   key: 'sto',
   name: 'Stockholm',
+  noun: 'metros and trams',
   tz: 'Europe/Stockholm',
   views: ['sto'],
   regions: 'data/sto-regions.json',
@@ -78,8 +81,9 @@ export const sto = {
       }
       const raw = {
         id: `${day.date}/${tid}`, date: day.date, number: tid, version: '0',
-        type: 'metro', cat: fam, ci: fam, line: String(line), lineName: `Line ${line}`,
-        name: `Line ${line}`, color: FAMILIES[fam].col, groupName: FAMILIES[fam].name,
+        type: fam === 3 ? 'tram' : 'metro', cat: fam, ci: fam, line: String(line),
+        lineName: TRAM_NAMES[line] ? `${line} ${TRAM_NAMES[line]}` : `Line ${line}`,
+        name: TRAM_NAMES[line] ? `${line} ${TRAM_NAMES[line]}` : `Line ${line}`, color: FAMILIES[fam].col, groupName: FAMILIES[fam].name,
         lateThr: 3, oper: 'SL', cancelled: false, rows,
       };
       if (!this.base.has(raw.id)) {
