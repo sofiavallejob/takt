@@ -50,7 +50,14 @@
         <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
       </div>
       <div class="ctl">
-        <button class="b" id="play" aria-label="Listen">▶</button>
+        <button class="b icon" id="play" aria-pressed="false" aria-label="Mute" title="Mute">
+          <svg class="on" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>
+          </svg>
+          <svg class="off" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>
+          </svg>
+        </button>
         <button class="b icon" id="bed" aria-pressed="true" title="Chord underneath" aria-label="Chord underneath">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6 1v10.3A3.5 3.5 0 1 0 8 14V5h5V1H6zm0 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
         </button>
@@ -78,8 +85,11 @@
       <h4>Playing</h4>
       <label>Density <input id="dens" type="range" min="0" max="1.2" step="0.05" value="0.8" aria-label="Sparse to dense"></label>
       <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.75"></label>
-      <div class="toggle">Arrivals play their own line
-        <button class="b" id="togarr" aria-pressed="true">On</button>
+      <div class="sub">Plays when a train</div>
+      <div class="seg" role="group" aria-label="Plays when a train">
+        <button class="b" data-plays="cross" aria-pressed="false" title="The line a train crosses is plucked">Crosses</button>
+        <button class="b" data-plays="arrive" aria-pressed="false" title="A train arriving at a station plucks its own line">Arrives</button>
+        <button class="b" data-plays="both" aria-pressed="true">Both</button>
       </div>
       <div class="toggle">City labels
         <button class="b" id="toglabels" aria-pressed="true">Show</button>
@@ -94,7 +104,15 @@
       <label>Brightness <input type="range" id="fxBright" min="200" max="8000" step="100" value="5200"></label>
       <label>Body warmth <input type="range" id="fxBody" min="0" max="10" step="0.5" value="5"></label>
       <label>Bed volume <input type="range" id="fxBed" min="0" max="1" step="0.05" value="1"></label>
-      <label>Late detuning <input type="range" id="fxSour" min="0" max="200" step="5" value="100"></label>
+
+      <h4>Late trains</h4>
+      <div class="seg" role="group" aria-label="Late trains">
+        <button class="b" data-late="detune" aria-pressed="true" title="Late trains go out of tune">Detune</button>
+        <button class="b" data-late="distort" aria-pressed="false" title="Late trains distort">Distort</button>
+        <button class="b" data-late="both" aria-pressed="false">Both</button>
+      </div>
+      <label>Detuning <input type="range" id="fxSour" min="0" max="200" step="5" value="100"></label>
+      <label>Distortion <input type="range" id="fxDist" min="0" max="1" step="0.05" value="0.8"></label>
 
       <div class="row"><button class="b" id="advreset">Reset all</button></div>
     </div>

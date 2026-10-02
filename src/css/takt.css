@@ -213,6 +213,10 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 #adv .row { display: flex; gap: 6px; margin-top: 12px; }
 #adv .row .b { flex: 1; font-size: 12.5px; text-align: center; }
 #adv .toggle { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
+#adv .sub { margin: 8px 0 4px; }
+#play .off { display: none; }
+#play[aria-pressed="true"] .on { display: none; }
+#play[aria-pressed="true"] .off { display: block; }
 #adv .toggle .b { font-size: 12.5px; padding: 3px 12px; }
 
 /* ---------- overlays ---------- */

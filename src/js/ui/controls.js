@@ -7,12 +7,16 @@ import { resize, cv, setTrail, pushTrail, trail } from '../render.js';
 import { strum, collectSweep } from '../sim.js';
 import { initSidebarSearch } from './sidebar.js';
 import { VIEWS } from '../config.js';
+import { applyFx } from '../audio/engine.js';
 
+/** Sound on or off. Muting fades everything out, the chord bed and the echoes
+ *  too; the trains keep moving, since there is no pausing real time. */
 export function setListening(on) {
   state.playing = on;
-  $('play').textContent = on ? '⏸' : '▶';
-  $('play').setAttribute('aria-label', on ? 'Stop listening' : 'Listen');
-  $('play').title = on ? 'Stop listening' : 'Listen';
+  $('play').setAttribute('aria-pressed', String(!on));
+  $('play').setAttribute('aria-label', on ? 'Mute' : 'Unmute');
+  $('play').title = on ? 'Mute' : 'Unmute';
+  applyFx();
 }
 
 /** The views of the current country; hidden when it only has one. */

@@ -197,14 +197,14 @@ read-only key and watch its quota at [data.trafikverket.se](https://data.trafikv
 | | |
 | --- | --- |
 | **Drag on the map** | Play the network by hand. Crossed strings are strummed low to high. |
-| **Space** | Listen / stop listening (the map keeps running) |
+| **Speaker** (or **Space**) | Mute / unmute. The trains keep moving; only the sound stops |
 | **Finland / Sweden / Stockholm** | The network (Sweden only with a key, see above) |
 | **Finland / Helsinki** | In Finland: the whole country, or the commuter area around Helsinki |
 | **Sweden / Mälardalen / Skåne** | In Sweden: the whole country, the Stockholm–Mälaren region, or the south |
 | **Tuning fork** | The bed chord on/off |
 | **Sun / moon** | Light or dark |
 | **Strings** | Every line, grouped into long distance, regional and commuter. Click one to solo it. |
-| **Advanced** | Tuning, density, volume, arrivals, city labels, and the effects chain |
+| **Advanced** | Tuning; what plays (lines crossed, arrivals, or both); how late trains sound (detuned, distorted, or both); density, volume, city labels and the effects chain |
 
 The bar along the bottom is today: how many trains run across the day, and where
 now is on it.

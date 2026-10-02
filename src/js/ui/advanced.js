@@ -10,7 +10,7 @@ import { updateSidebarNotes } from './sidebar.js';
 const KEY = 'takt.prefs';
 
 function savePrefs() {
-  const p = { tuning: state.tuning, showLabels: state.showLabels, arrivals: state.arrivals };
+  const p = { tuning: state.tuning, showLabels: state.showLabels, plays: state.plays, lateFx: state.lateFx };
   for (const id of Object.keys(FX_DEFAULTS)) p[id] = $(id)?.value;
   try { localStorage.setItem(KEY, JSON.stringify(p)); } catch {}
 }
@@ -22,7 +22,15 @@ function loadPrefs() {
   for (const id of Object.keys(FX_DEFAULTS)) if (p[id] != null && $(id)) $(id).value = p[id];
   if (p.tuning) state.tuning = p.tuning;
   if (typeof p.showLabels === 'boolean') state.showLabels = p.showLabels;
-  if (typeof p.arrivals === 'boolean') state.arrivals = p.arrivals;
+  if (['cross', 'arrive', 'both'].includes(p.plays)) state.plays = p.plays;
+  else if (p.arrivals === false) state.plays = 'cross';      // the old on/off switch
+  if (['detune', 'distort', 'both'].includes(p.lateFx)) state.lateFx = p.lateFx;
+}
+
+/** Three-way switches: the pressed button is the current choice. */
+function syncSeg(attr, value) {
+  document.querySelectorAll(`[data-${attr}]`).forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset[attr] === value)));
 }
 
 function syncTuningButtons() {
@@ -67,22 +75,23 @@ export function initAdvanced() {
     savePrefs();
   };
 
-  $('togarr').onclick = () => {
-    state.arrivals = !state.arrivals;
-    $('togarr').setAttribute('aria-pressed', String(state.arrivals));
-    $('togarr').textContent = state.arrivals ? 'On' : 'Off';
-    savePrefs();
-  };
+  document.querySelectorAll('[data-plays]').forEach(b => {
+    b.onclick = () => { state.plays = b.dataset.plays; syncSeg('plays', state.plays); savePrefs(); };
+  });
+  document.querySelectorAll('[data-late]').forEach(b => {
+    b.onclick = () => { state.lateFx = b.dataset.late; syncSeg('late', state.lateFx); savePrefs(); };
+  });
 
   $('advreset').onclick = () => {
     for (const [k, v] of Object.entries(FX_DEFAULTS)) if ($(k)) $(k).value = v;
     state.tuning = 'chord';
     state.showLabels = true;
-    state.arrivals = true;
+    state.plays = 'both';
+    state.lateFx = 'detune';
     syncTuningButtons();
+    syncSeg('plays', state.plays);
+    syncSeg('late', state.lateFx);
     $('toglabels').setAttribute('aria-pressed', 'true');
-    $('togarr').setAttribute('aria-pressed', 'true');
-    $('togarr').textContent = 'On';
     applyFx();
     drawNet();
     updateSidebarNotes(true);
@@ -91,6 +100,6 @@ export function initAdvanced() {
 
   syncTuningButtons();
   $('toglabels').setAttribute('aria-pressed', String(state.showLabels));
-  $('togarr').setAttribute('aria-pressed', String(state.arrivals));
-  $('togarr').textContent = state.arrivals ? 'On' : 'Off';
+  syncSeg('plays', state.plays);
+  syncSeg('late', state.lateFx);
 }

@@ -10,7 +10,7 @@ export let master = null;
 export let out = null;          // the last node before the speakers
 let bus = null, limiter = null;
 const BUF = {}, GAIN = {};
-let gridT0 = 0, voices = 0;
+let gridT0 = 0, voices = 0, crunch = null;
 const slots = new Map();
 
 export const isRunning = () => AC && AC.state === 'running';
@@ -53,9 +53,18 @@ function softClipCurve() {
   return c;
 }
 
+/** The curve late notes are driven into. Input past ±1 is held at the ends,
+ *  so the harder a note is driven the more it squares off. */
+function crunchCurve() {
+  const n = 1024, c = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(x * 2.5) / Math.tanh(2.5); }
+  return c;
+}
+
 export function initAudio() {
   if (AC) return;
   AC = new (window.AudioContext || window.webkitAudioContext)();
+  crunch = crunchCurve();
 
   // Output stage: master trim, then a fast limiter, then a soft knee.
   const shaper = AC.createWaveShaper();
@@ -136,8 +145,9 @@ export function clearSlots() { slots.clear(); }
 
 /** Play a frequency. Buffers exist per semitone, so the fractional part is
  *  taken by `detune` — which is what lets harmonic tuning play notes that are
- *  not on the twelve-tone grid at all. */
-export function play(freq, when, pan, sourCents = 0, rough = false, amp = 1) {
+ *  not on the twelve-tone grid at all. `dist` (0 to 1) drives the note into
+ *  distortion. */
+export function play(freq, when, pan, sourCents = 0, rough = false, amp = 1, dist = 0) {
   if (!AC || voices > 40) return;
   const m = ftom(freq);
   const base = Math.max(RENDER_LO, Math.min(RENDER_HI, Math.round(m)));
@@ -151,7 +161,17 @@ export function play(freq, when, pan, sourCents = 0, rough = false, amp = 1) {
   g.gain.value = GAIN[base] * amp;
   const p = AC.createStereoPanner();
   p.pan.value = Math.max(-0.9, Math.min(0.9, pan));
-  src.connect(g).connect(p).connect(bus);
+  if (dist > 0.01) {
+    // Drive, clip, then take the level back down: the note gets harsher, not louder.
+    const pre = AC.createGain(), sh = AC.createWaveShaper(), post = AC.createGain();
+    pre.gain.value = 1 + dist * 14;
+    sh.curve = crunch;
+    post.gain.value = 1 / (1 + dist * 1.8);
+    src.connect(pre).connect(sh).connect(post).connect(g);
+  } else {
+    src.connect(g);
+  }
+  g.connect(p).connect(bus);
 
   if (rough) {                    // a second voice a little sharp: the two beat
     const s2 = AC.createBufferSource();
@@ -184,8 +204,9 @@ export function click(when, pan, amp = 1) {
   n.onended = () => p.disconnect();
 }
 
+/** Volume, or silence while muted: the map and the clock keep running. */
 export function setVolume(v) {
-  if (master) master.gain.setTargetAtTime(sval(v), AC.currentTime, 0.05);
+  if (master) master.gain.setTargetAtTime(sval(state.playing ? v : 0), AC.currentTime, 0.05);
 }
 
 export function applyFx() {
@@ -206,3 +227,9 @@ export function sourness(late) {
   return Math.min(mx, mx * Math.pow(Math.max(0, late) / 60, 0.7));
 }
 export function roughness(late) { return Math.max(0, late - 1) / 30; }
+/** 0 to 1: how hard a late train's note is driven. A minute late is clean;
+ *  forty minutes is as rough as the Distortion slider allows. */
+export function distortion(late) {
+  const mx = +($('fxDist')?.value ?? FX_DEFAULTS.fxDist);
+  return mx * Math.pow(Math.min(1, Math.max(0, late - 1) / 40), 0.7);
+}

@@ -24,7 +24,8 @@ export const state = {
   // preferences
   showLabels: true,
   bedOn: true,
-  arrivals: true,  // trains pluck their own line when they reach a station
+  plays: 'both',   // what sounds: 'cross' (lines crossed), 'arrive' (own line at stations), 'both'
+  lateFx: 'detune', // how lateness sounds: 'detune', 'distort' or 'both'
   tuning: 'chord', // 'chord' | 'harmonic'
   soloLine: null,
 };

@@ -30,7 +30,7 @@ export const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A',
 export const FX_DEFAULTS = {
   dens: 0.8, vol: 0.75,
   fxVerb: 0.32, fxEcho: 0.28, fxFb: 0.32,
-  fxBright: 5200, fxBody: 5, fxBed: 1, fxSour: 100,
+  fxBright: 5200, fxBody: 5, fxBed: 1, fxSour: 100, fxDist: 0.8,
 };
 
 /** The map views. Bounds are in degrees; they are projected at load. */

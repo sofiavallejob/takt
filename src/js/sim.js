@@ -12,7 +12,7 @@ import { CATS, STEP } from './config.js';
 import { state, $ } from './state.js';
 import { delayAt, actualDist, pointAt, query } from './geom.js';
 import {
-  AC, play, click, nextStep, claimSlot, isRunning, sourness, roughness,
+  AC, play, click, nextStep, claimSlot, isRunning, sourness, roughness, distortion,
 } from './audio/engine.js';
 import { freqForLine, chordAt, mtof } from './audio/tuning.js';
 import { flashLine } from './ui/sidebar.js';
@@ -41,7 +41,9 @@ function sound(g, tr, px, byHand, amp = 1) {
   const s = nextStep(drag);
   if (!claimSlot(s.k)) return -1;
   if (tr && tr.canc) { click(s.when, pan, amp); return (s.when - AC.currentTime) * 1000; }
-  play(freq, s.when, pan, sourness(late), roughness(late) > 0.15, amp);
+  const detune = state.lateFx !== 'distort', crush = state.lateFx !== 'detune';
+  play(freq, s.when, pan, detune ? sourness(late) : 0, detune && roughness(late) > 0.15, amp,
+    crush ? distortion(late) : 0);
   return (s.when - AC.currentTime) * 1000;
 }
 
@@ -120,12 +122,13 @@ function placeDist(tr, N, dt) {
   return tr.dShow;
 }
 
-/** A train has just reached a station: its own string, softly, at that spot. */
+/** A train has just reached a station: its own string at that spot. Softly
+ *  under crossings; fuller when arrivals are all there is. */
 function arrive(tr, i) {
   const g = tr.g, p = pointAt(tr.path, tr.d[i]);
   const sd = g.stD.get(tr.rc[i]);
   const u = sd == null ? 0.5 : sd / Math.max(1e-6, g.len);
-  if (trigger(g, tr, p[0], p[1], u, false, 0.55)) state.heard.arrivals++;
+  if (trigger(g, tr, p[0], p[1], u, false, state.plays === 'arrive' ? 0.85 : 0.55)) state.heard.arrivals++;
 }
 
 /** The train has passed station `code` (row i). Lines that meet its route
@@ -166,6 +169,7 @@ export function step(dt = 0) {
   const jump = !lastN || N - lastN > 0.5;
   lastN = N;
   const moving = [];
+  const crossings = state.plays !== 'arrive', arrivals = state.plays !== 'cross';
 
   for (const tr of state.S.trains) {
     const a = tr.canc ? tr.t0 : tr.a0, b = tr.canc ? tr.t1 : tr.a1;
@@ -182,13 +186,13 @@ export function step(dt = 0) {
       let hit = -1;
       for (let i = tr.lastRow + 1; i <= r; i++) {
         if (tr.stop[i]) hit = i;
-        if (i === 0 || tr.rc[i] !== tr.rc[i - 1]) junction(tr, i);
+        if (crossings && (i === 0 || tr.rc[i] !== tr.rc[i - 1])) junction(tr, i);
       }
       tr.lastRow = r;
-      if (hit >= 0 && state.arrivals) arrive(tr, hit);
+      if (hit >= 0 && arrivals) arrive(tr, hit);
     }
 
-    if (!tr.head || jump) { tr.head = p; continue; }
+    if (!tr.head || jump || !crossings) { tr.head = p; continue; }
     const [ax, ay] = tr.head;
     if (Math.abs(p[0] - ax) < 0.01 && Math.abs(p[1] - ay) < 0.01) continue;
     const own = tr.g;
