@@ -231,8 +231,7 @@ now is on it.
 
 Built by Sofia Vallejo Budziszewski as part of doctoral research at the
 [Institute of Electronic Music and Acoustics (IEM)](https://iem.kug.ac.at), University of
-Music and Performing Arts Graz. Inspired by Alexander Chen's
-[Conductor](http://mta.me) and Joshua Wolk's [Train Jazz](https://www.trainjazz.com).
+Music and Performing Arts Graz.
 
 Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, Trafikverket, Samtrafiken and
 the projects listed above, under their own licences.

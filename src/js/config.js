@@ -109,6 +109,4 @@ export const CREDITS_STO = `<h3>Stockholm metro, live</h3><ul>
 export const CREDITS_GENERAL = `<h3>Credits</h3>
   <p>Built by Sofia Vallejo Budziszewski as part of doctoral research at the
   <a href="https://iem.kug.ac.at">Institute of Electronic Music and Acoustics (IEM)</a>,
-  University of Music and Performing Arts Graz.</p>
-  <p>Inspired by Alexander Chen's <a href="http://mta.me">Conductor</a> and
-  Joshua Wolk's <a href="https://www.trainjazz.com">Train Jazz</a>.</p>`;
+  University of Music and Performing Arts Graz.</p>`;
