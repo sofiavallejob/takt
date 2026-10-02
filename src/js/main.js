@@ -18,6 +18,7 @@ import { initAdvanced } from './ui/advanced.js';
 import { updateSidebarNotes } from './ui/sidebar.js';
 import { live } from './live/mode.js';
 import { replay } from './replay/mode.js';
+import { track } from './stats.js';
 
 const MODES = { live, replay };
 let mode = live, changing = false;
@@ -33,6 +34,7 @@ async function setMode(m) {
   if (m === mode.key || changing || !MODES[m]) return;
   const next = MODES[m], btn = document.querySelector(`#modes [data-m="${m}"]`);
   changing = true;
+  track(`mode/${next.label.toLowerCase()}`, `Switched to ${next.label}`);
   const label = btn.textContent;
   btn.textContent = '…';
   try {
@@ -107,6 +109,7 @@ async function start(hash) {
   initAdvanced();
   initControls(() => mode.space());
   document.querySelectorAll('#modes [data-m]').forEach(b => { b.onclick = () => setMode(b.dataset.m); });
+  track(`start/${mode.label.toLowerCase()}`, `Start listening (${mode.label})`);
   await mode.enter(hash);
 
   initAudio();

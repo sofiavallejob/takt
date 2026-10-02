@@ -284,4 +284,7 @@ export const CREDITS_GENERAL = `<h3>Sonification</h3>
   University of Music and Performing Arts Graz, Austria (CC BY 4.0),
   <a href="https://sofiavallejob.github.io/takt/">sofiavallejob.github.io/takt</a></em></p>
   <p>The timetables, positions and maps belong to the operators and projects
-  listed above, under their own licences.</p>`;
+  listed above, under their own licences.</p>
+  <h3>Privacy</h3>
+  <p>Visits are counted anonymously with <a href="https://www.goatcounter.com">GoatCounter</a>:
+  no cookies, nothing that identifies you, only which networks are listened to.</p>`;

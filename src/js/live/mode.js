@@ -16,8 +16,10 @@ import { net, useNet, prune, retune, dayProfile, projectRings, viewFor, minsNow 
 import { setZone } from './clock.js';
 import { NETWORKS, COUNTRIES, countryOf, networkOfView } from './networks.js';
 import { step } from './step.js';
+import { track } from '../stats.js';
 
 let on = false, active = null, switching = false;
+const counted = new Set();   // views already counted this visit
 let lastOk = 0, failing = false, gpsCount = 0;
 const rings = {};
 
@@ -120,6 +122,7 @@ function tick() {
 function setView(k) {
   if (!active.views.includes(k)) k = active.views[0];
   const v = viewFor(k, rings[active.key]);
+  if (!counted.has(k)) { counted.add(k); track(`live/${k}`, `Live: ${VIEWS[k].name}`); }
   state.viewKey = k;
   state.B = v.B;
   state.C.cities = v.cities;

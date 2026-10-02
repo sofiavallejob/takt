@@ -448,6 +448,13 @@ Please credit it as:
 > Acoustics, University of Music and Performing Arts Graz, Austria (CC BY 4.0),
 > https://sofiavallejob.github.io/takt
 
+Visits are counted anonymously with [GoatCounter](https://bringmethetxcos.goatcounter.com)
+(no cookies, so no consent banner is needed): page views, plus a few events from
+`src/js/stats.js`, namely `start/live` or `start/static` (someone pressed Start
+listening), `mode/…` (switched mode), `live/<view>` and `static/<country>` (which
+networks people pick, once each per visit). Local copies (`localhost`) are not
+counted.
+
 The data belongs to Fintraffic, HSL,
 Trafikverket, Samtrafiken, Entur, the MBTA, the MTA, LA Metro, BART, SFMTA, 511.org and the operators and projects listed above,
 under their own licences.

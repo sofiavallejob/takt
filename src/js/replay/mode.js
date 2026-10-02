@@ -14,9 +14,11 @@ import { buildGrid } from '../geom.js';
 import { loadManifest, loadCountry, loaded, getManifest } from './loader.js';
 import { ensureCountry, dayShape } from './decode.js';
 import { step } from './step.js';
+import { track } from '../stats.js';
 
 let on = false, wired = false, switching = false;
-let replayT = 0;            // the replayed clock, kept while live is playing
+let replayT = 0;
+const counted = new Set();   // countries already counted this visit            // the replayed clock, kept while live is playing
 
 /** The country an address names ('#ch', '#de-bad'), or null. */
 function keyOf(hash) {
@@ -73,6 +75,7 @@ function setDay(k) {
 
 function applyCountry(k) {
   const c = loaded(k);
+  if (!counted.has(k)) { counted.add(k); track(`static/${k}`, `Static: ${c.name}`); }
   state.CK = k;
   state.C = c;
   ensureCountry(c);
