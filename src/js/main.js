@@ -57,20 +57,6 @@ function afterUpdate() {
   state.S.profile = active.profile;
   state.S.peak = Math.max(1, ...state.S.profile);
   drawProfile(state.S.profile);
-  updateNote();
-}
-
-function updateNote() {
-  if (!active) return;
-  const run = state.moving.filter(t => !t.canc);
-  const late = run.filter(t => t.late >= t.lateThr).length;
-  let canc = 0;
-  for (const t of net.trains.values()) if (t.canc && t.date === active.today) canc++;
-  const p = late / Math.max(1, run.length) * 100;
-  const pc = !late ? 'None' : p < 1 ? 'Under 1%' : Math.round(p) + '%';
-  $('daynote').textContent = run.length
-    ? `${pc} of the trains moving now ${late === 1 ? 'is' : 'are'} late. ${canc ? canc + ' cancelled today.' : 'No cancellations today.'}`
-    : 'Nothing is moving right now.';
 }
 
 function status() {
@@ -176,14 +162,13 @@ async function setNetwork(k) {
   }
 }
 
-let lastNote = 0, lastTs = 0;
+let lastTs = 0;
 function frame(ts) {
   const now = performance.now();
   const dt = lastTs ? Math.min(0.5, (ts - lastTs) / 1000) : 0;
   lastTs = ts;
   if (!switching) {
     step(dt);
-    if (now - lastNote > 5000) { lastNote = now; updateNote(); }
     hourNote();
     updateBed(now);
     draw(now);
@@ -224,7 +209,8 @@ async function start(rec, view) {
 
   onThemeChange(drawNet);
   addEventListener('resize', resize);
-  new ResizeObserver(() => resize()).observe($('main'));
+  const ro = new ResizeObserver(() => resize());
+  for (const id of ['main', 'top', 'bottom']) ro.observe($(id));
 
   $('start').remove();
 

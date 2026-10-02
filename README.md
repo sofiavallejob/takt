@@ -182,6 +182,14 @@ strings, junctions, sound, drawing, is shared. Most other European feeds need an
 opentransportdata.swiss, Deutsche Bahn) or publish GTFS-RT protobuf without
 CORS, which a static page cannot read directly; those would need a small proxy.
 
+### Sweden
+
+`live/se.js` plays every passenger train in Sweden from Trafikverket's open API
+(`TrainAnnouncement` for the timetable and live times, `TrainPosition` for GPS).
+It needs a Trafikverket key in `src/js/keys.js`; while that is empty, Sweden is
+left out of the picker. The key ships to every visitor's browser, so use a
+read-only key and watch its quota at [data.trafikverket.se](https://data.trafikverket.se).
+
 ---
 
 ## Controls
@@ -190,8 +198,9 @@ CORS, which a static page cannot read directly; those would need a small proxy.
 | --- | --- |
 | **Drag on the map** | Play the network by hand. Crossed strings are strummed low to high. |
 | **Space** | Listen / stop listening (the map keeps running) |
-| **Finland / Stockholm** | The network |
+| **Finland / Sweden / Stockholm** | The network (Sweden only with a key, see above) |
 | **Finland / Helsinki** | In Finland: the whole country, or the commuter area around Helsinki |
+| **Sweden / Mälardalen / Skåne** | In Sweden: the whole country, the Stockholm–Mälaren region, or the south |
 | **Tuning fork** | The bed chord on/off |
 | **Sun / moon** | Light or dark |
 | **Strings** | Every line, grouped into long distance, regional and commuter. Click one to solo it. |
@@ -210,6 +219,8 @@ now is on it.
 | Train GPS positions | digitraffic.fi train locations (CC BY 4.0) |
 | Station coordinates | digitraffic.fi station metadata (CC BY 4.0) |
 | Regions | [geoBoundaries](https://www.geoboundaries.org) FIN ADM1, from OpenStreetMap (ODbL) |
+| Sweden's trains, live | [Trafikverket open API](https://data.trafikverket.se) |
+| Sweden regions | geoBoundaries SWE ADM1, from OpenStreetMap (ODbL) |
 | Stockholm metro, live | GTFS Sweden 3 Realtime, Samtrafiken via Trafiklab (CC0) |
 | Stockholm metro timetable | GTFS Sweden 3 static, Samtrafiken via Trafiklab (CC0) |
 | Stockholm outlines | geoBoundaries SWE ADM2, from OpenStreetMap (ODbL) |
@@ -218,8 +229,10 @@ now is on it.
 
 ## Credits
 
-Built by Sofia Vallejo Budziszewski. Inspired by Alexander Chen's
+Built by Sofia Vallejo Budziszewski as part of doctoral research at the
+[Institute of Electronic Music and Acoustics (IEM)](https://iem.kug.ac.at), University of
+Music and Performing Arts Graz. Inspired by Alexander Chen's
 [Conductor](http://mta.me) and Joshua Wolk's [Train Jazz](https://www.trainjazz.com).
 
-Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, Samtrafiken and
+Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, Trafikverket, Samtrafiken and
 the projects listed above, under their own licences.

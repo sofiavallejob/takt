@@ -33,7 +33,7 @@ export const FX_DEFAULTS = {
   fxBright: 5200, fxBody: 5, fxBed: 1, fxSour: 100,
 };
 
-/** The two map views. Bounds are in degrees; they are projected at load. */
+/** The map views. Bounds are in degrees; they are projected at load. */
 export const VIEWS = {
   fi: {
     name: 'Finland',
@@ -46,6 +46,24 @@ export const VIEWS = {
     cities: ['T-Centralen', 'Slussen', 'Gullmarsplan', 'Hässelby strand', 'Farsta strand', 'Skarpnäck',
       'Hagsätra', 'Akalla', 'Hjulsta', 'Mörby centrum', 'Norsborg', 'Fruängen', 'Ropsten', 'Liljeholmen', 'Alvik'],
     small: ['Liljeholmen', 'Gullmarsplan', 'Alvik'],
+  },
+  se: {
+    name: 'Sweden',
+    box: [11.0, 55.3, 24.2, 68.5],
+    cities: ['Cst', 'G', 'Mc', 'U', 'Lp', 'Ör', 'Gä', 'Suc', 'Uå', 'Ös', 'Le', 'Kmb', 'Ksc', 'Jö', 'Hb', 'Kac', 'No.nk'],
+    small: ['U', 'Lp', 'Ör', 'Gä', 'Ksc', 'Jö', 'Hb', 'Kac', 'No.nk'],
+  },
+  mal: {
+    name: 'Mälardalen',
+    box: [15.0, 58.6, 18.9, 60.4],
+    cities: ['Cst', 'U', 'Vå', 'Ör', 'Et', 'Nk', 'Arnc', 'Sl', 'Ep', 'Hpbg', 'K', 'Söc', 'Nyc', 'Bål'],
+    small: ['Sl', 'Ep', 'Hpbg', 'Nyc', 'Bål', 'Söc'],
+  },
+  sk: {
+    name: 'Skåne',
+    box: [12.3, 55.3, 14.6, 56.6],
+    cities: ['Mc', 'Lu', 'Hb', 'Cr', 'Y', 'Trg', 'Hm', 'Lkö', 'Ä', 'Dk.kh'],
+    small: ['Trg', 'Lkö', 'Ä', 'Y'],
   },
   hel: {
     name: 'Helsinki',
@@ -77,22 +95,20 @@ export const CREDITS_FI = `<h3>Finland, live</h3><ul>
   <li>Regions: <a href="https://www.geoboundaries.org">geoBoundaries</a> FIN ADM1, from OpenStreetMap (ODbL)</li>
   <li>Routes are drawn through every timetable point a train passes, so they follow the track at station spacing, not at survey precision.</li></ul>`;
 
+export const CREDITS_SE = `<h3>Sweden, live</h3><ul>
+  <li>Trains, timetables, estimated and actual times, cancellations, GPS positions and stations: <a href="https://data.trafikverket.se">Trafikverket open API</a></li>
+  <li>Regions: <a href="https://www.geoboundaries.org">geoBoundaries</a> SWE ADM1, from OpenStreetMap (ODbL)</li>
+  <li>Routes are drawn station to station, not along the track. Replacement buses are left out.</li></ul>`;
+
 export const CREDITS_STO = `<h3>Stockholm metro, live</h3><ul>
   <li>Live trip updates and vehicle positions: <a href="https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/">GTFS Sweden 3 Realtime</a>, Samtrafiken via Trafiklab (CC0)</li>
   <li>Timetable and stations: GTFS Sweden 3 static data, Samtrafiken via Trafiklab (CC0), cut to the tunnelbana once a day</li>
   <li>Municipal outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> SWE ADM2, from OpenStreetMap (ODbL)</li>
   <li>Lines are drawn station to station, not along the tunnels.</li></ul>`;
 
-export const CREDITS_GENERAL = `<h3>Sonification</h3>
-  <p>Built by Sofia Vallejo Budziszewski. Inspired by Alexander Chen's
-  <a href="http://mta.me">Conductor</a> and Joshua Wolk's
-  <a href="https://www.trainjazz.com">Train Jazz</a>.</p>
-  <p>Each route is a string tuned by its length. Trains pluck the lines they cross,
-  and the note you hear belongs to the line being crossed. At a junction, the
-  lines a train parts from sound more softly; a train arriving at a station
-  plucks its own line, quietly. Everything happens when it happens: the
-  positions come from the live feeds, and the harmony moves on the real hour
-  where the trains are. In <em>chord</em> tuning the strings are snapped to a chord that
-  moves every hour (D, Bm, G, A). In <em>harmonic</em> tuning each string sounds
-  at the frequency its length implies. Late trains drag behind the beat and go
-  out of tune on a continuous curve; cancelled trains leave only a click.</p>`;
+export const CREDITS_GENERAL = `<h3>Credits</h3>
+  <p>Built by Sofia Vallejo Budziszewski as part of doctoral research at the
+  <a href="https://iem.kug.ac.at">Institute of Electronic Music and Acoustics (IEM)</a>,
+  University of Music and Performing Arts Graz.</p>
+  <p>Inspired by Alexander Chen's <a href="http://mta.me">Conductor</a> and
+  Joshua Wolk's <a href="https://www.trainjazz.com">Train Jazz</a>.</p>`;

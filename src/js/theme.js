@@ -14,7 +14,7 @@ const PALETTES = {
     halo: 'rgba(243,245,247,.95)',  // text outline and dot rims
     trail: 'rgba(22,35,47,.30)',
     flash: 'rgba(22,35,47,.12)',
-    netAlpha: 0.5,
+    netAlpha: 0.5, tailAlpha: 1,
   },
   dark: {
     dark: true,
@@ -25,7 +25,7 @@ const PALETTES = {
     halo: 'rgba(17,25,33,.95)',
     trail: 'rgba(226,233,240,.35)',
     flash: 'rgba(226,233,240,.15)',
-    netAlpha: 0.6,
+    netAlpha: 0.6, tailAlpha: 1.4,
   },
 };
 

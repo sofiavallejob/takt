@@ -30,7 +30,7 @@ function syncTuningButtons() {
     b.setAttribute('aria-pressed', String(b.dataset.tuning === state.tuning)));
   $('tunenote').textContent = state.tuning === 'harmonic'
     ? 'Length ratios as frequency ratios. Honest, and towards the top it stops being a melody.'
-    : 'Strings snap to a chord that moves on every hour in Helsinki.';
+    : 'Strings snap to a chord that moves on every hour, local time.';
 }
 
 export function initAdvanced() {

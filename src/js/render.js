@@ -5,7 +5,7 @@
 import { state, $ } from './state.js';
 import { theme } from './theme.js';
 import { lineCol } from './ui/colour.js';
-import { pointAt, distAt } from './geom.js';
+import { pointAt, distAt, actualDist } from './geom.js';
 import { describeTuning } from './audio/tuning.js';
 
 export let cv = null, ctx = null;
@@ -30,12 +30,19 @@ export function resize() {
   state.W = W; state.H = H;
   for (const c of [cv, net]) { c.width = W * state.DPR; c.height = H * state.DPR; }
   const B = state.B;
-  const mob = W < 760, top = mob ? 200 : 150, bottom = mob ? 130 : 128, side = mob ? 8 : 40;
-  const aw = W - 2 * side, ah = H - top - bottom;
+  // The map fills whatever the header and the controls leave free. On a phone
+  // the header sits above the map; held sideways it is a column on the left.
+  const mob = W < 760, short = H < 520 && W > H;
+  const box = mc.getBoundingClientRect();
+  const hb = $('top').getBoundingClientRect(), bb = $('bottom').getBoundingClientRect();
+  const left = short ? hb.right - box.left + 12 : mob ? 8 : 40, right = mob || short ? 8 : 40;
+  const top = short ? 12 : mob ? hb.bottom - box.top + 10 : 150;
+  const bottom = Math.max(mob ? 0 : 128, box.bottom - bb.top + 6);
+  const aw = Math.max(40, W - left - right), ah = Math.max(40, H - top - bottom);
   const s = Math.min(aw / (B.x1 - B.x0), ah / (B.y1 - B.y0));
   state.view = {
     s,
-    x: side + (aw - s * (B.x1 - B.x0)) / 2 - s * B.x0,
+    x: left + (aw - s * (B.x1 - B.x0)) / 2 - s * B.x0,
     y: top + (ah - s * (B.y1 - B.y0)) / 2 - s * B.y0,
   };
   drawNet();
@@ -115,6 +122,22 @@ export function showLabel(g, x, y) {
   };
 }
 
+/** Add the stretch of a route between distances a and b to a path, following
+ *  its bends. */
+function span(p2, g, a, b) {
+  let lo = 0, hi = g.n - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (g.d[m] <= a) lo = m; else hi = m; }
+  const p = pointAt(g, a);
+  p2.moveTo(X(p[0]), Y(p[1]));
+  for (let i = lo + 1; i < g.n && g.d[i] < b; i++) p2.lineTo(X(g.x[i]), Y(g.y[i]));
+  const q = pointAt(g, b);
+  p2.lineTo(X(q[0]), Y(q[1]));
+}
+
+// A train's tail covers where it was over the last few minutes, so motion that
+// is too slow to see on a national map still reads as direction and speed.
+const TAIL_MIN = 20, TAIL_PX = 60, TAIL_A = [0.1, 0.22, 0.38, 0.6], TAIL_W = [0.45, 0.6, 0.8, 1];
+
 export let trail = [];
 export function pushTrail(p) { trail.push(p); }
 export function setTrail(t) { trail = t; }
@@ -147,8 +170,30 @@ export function draw(now) {
   const dots = groups.map(() => new Path2D()), rings = groups.map(() => new Path2D());
   const dead = new Path2D();
   const busy = state.moving.length > 1200, rr = busy ? 0.8 : 1;
+  const tails = groups.map(() => TAIL_A.map(() => new Path2D()));
+  const maxTail = TAIL_PX * k / state.view.s;
   for (const tr of state.moving) {
-    const x = X(tr.x), y = Y(tr.y), r = (tr.c <= 2 ? 3.2 : 2.5) * k * rr;
+    if (tr.canc || tr.dShow < 0) continue;
+    const back = actualDist(tr, state.N) - actualDist(tr, state.N - TAIL_MIN);
+    const len = Math.min(maxTail, Math.max(0, back));
+    if (len * state.view.s < 1.5) continue;
+    const ci = Math.min(groups.length - 1, tr.ci), d1 = tr.dShow, n = TAIL_A.length;
+    for (let j = 0; j < n; j++) {
+      const a = Math.max(0, d1 - len * (n - j) / n), b = Math.max(0, d1 - len * (n - j - 1) / n);
+      if (b > a) span(tails[ci][j], tr.path, a, b);
+    }
+  }
+  groups.forEach((gr, i) => {
+    ctx.strokeStyle = gr.col;
+    tails[i].forEach((p2, j) => {
+      ctx.globalAlpha = TAIL_A[j] * theme.tailAlpha;
+      ctx.lineWidth = Math.max(3, 6 * k * rr) * TAIL_W[j];
+      ctx.stroke(p2);
+    });
+  });
+  ctx.globalAlpha = 1;
+  for (const tr of state.moving) {
+    const x = X(tr.x), y = Y(tr.y), r = Math.max(2, (tr.c <= 2 ? 3.2 : 2.5) * k * rr);
     if (x < -10 || y < -10 || x > W + 10 || y > H + 10) continue;
     if (tr.canc) { dead.moveTo(x + r + 0.5, y); dead.arc(x, y, r + 0.5, 0, 7); continue; }
     const ci = Math.min(groups.length - 1, tr.ci);

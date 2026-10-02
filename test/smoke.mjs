@@ -75,7 +75,7 @@ try {
   await page.waitForTimeout(60000);
   const b = await page.evaluate(() => {
     const { state, net } = window.__takt;
-    return { heard: { ...state.heard }, version: net.version, status: document.querySelector('#tcountsub').textContent, note: document.querySelector('#daynote').textContent };
+    return { heard: { ...state.heard }, version: net.version, status: document.querySelector('#tcountsub').textContent };
   });
   ok('notes heard in a minute', b.heard.crossings + b.heard.arrivals > 0,
     `${b.heard.crossings} crossings, ${b.heard.arrivals} arrivals`);
@@ -88,7 +88,6 @@ try {
     return { on: on.length, moving: state.moving.length, median: off[off.length >> 1] || 0, worst: off[off.length - 1] || 0 };
   });
   ok('trains on GPS', g.on > 0, `${g.on} of ${g.moving}; GPS differs from timetable by ${g.median.toFixed(2)} km median, ${g.worst.toFixed(1)} km worst`);
-  console.log('       note:', b.note);
 
   await page.click('#views button[data-v="hel"]');
   await page.waitForTimeout(800);

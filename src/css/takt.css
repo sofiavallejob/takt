@@ -49,8 +49,7 @@ h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.01em; }
 #clock span { display: inline-block; width: .56em; text-align: center; }
 #clock span.c { width: .28em; }
 #tcount { font-size: 15px; margin-top: 4px; font-variant-numeric: tabular-nums; color: var(--muted); }
-#tcountsub, #daynote { font-size: 13px; color: var(--muted); }
-#daynote { margin-top: 2px; max-width: 42ch; }
+#tcountsub { font-size: 13px; color: var(--muted); }
 
 .days { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
 .toprow { display: flex; gap: 6px; align-items: center; }
@@ -112,6 +111,9 @@ h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.01em; }
 }
 
 .ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ctl .foot { font-size: 12px; color: var(--muted); }
+.ctl .foot a, #credits .foot { color: var(--muted); }
+#credits .foot { font-size: 12px; margin-top: 28px; }
 .b {
   white-space: nowrap; font: inherit; font-size: 14px; color: var(--ink);
   background: var(--chip); border: 1px solid var(--line); border-radius: 999px;
@@ -250,17 +252,35 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   #adv { right: 14px; bottom: 104px; width: 240px; }
 }
 @media (max-width: 760px) {
-  #top { left: 14px; right: 14px; top: 12px; flex-direction: column; gap: 8px; }
-  #clock { font-size: 46px; }
+  #top { left: 14px; right: 14px; top: 12px; flex-direction: column; gap: 10px; }
+  /* Name and counts on the left, the clock beside them, so the map keeps the screen. */
+  #top > div:first-child { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: center; }
+  #clock { grid-column: 2; grid-row: 1 / span 3; font-size: 44px; margin: 0; }
   h1 { font-size: 18px; }
-  #daynote { display: none; }
-  .days { flex-direction: column; align-items: stretch; }
-  .toprow { justify-content: flex-start; }
-    #bottom { left: 14px; right: 14px; bottom: 10px; }
-  #key { font-size: 11px; gap: 2px 9px; }
+  #tcount { font-size: 13.5px; margin-top: 0; }
+  #tcountsub { font-size: 12px; }
+  .days { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .ctry button { font-size: 13px; padding: 4px 10px; }
+  #togtheme { width: 32px; height: 32px; }
+  #bottom { left: 14px; right: 14px; bottom: 10px; gap: 6px; }
+  #key { font-size: 11px; gap: 0 9px; }
   .b { padding: 5px 11px; font-size: 13px; }
+  .ctl .foot { width: 100%; font-size: 11px; }
   #hint { display: none; }
   #side { width: 100%; }
+  #adv { left: 10px; right: 10px; top: 10px; bottom: 10px; width: auto; max-height: none; z-index: 6; font-size: 14px; }
+  #adv input[type="range"] { width: 45%; }
+}
+/* A phone held sideways: the header becomes a column on the left of the map. */
+@media (max-height: 520px) and (orientation: landscape) {
+  #top { left: 14px; right: auto; top: 10px; width: 200px; flex-direction: column; gap: 8px; }
+  #top > div:first-child { display: block; }
+  #clock { font-size: 40px; }
+  .days { flex-direction: column; align-items: flex-start; }
+  #key { display: none; }
+  #bottom { left: 14px; right: 14px; bottom: 6px; gap: 2px; }
+  .ctl .foot { width: auto; }
+  #adv { left: auto; right: 10px; width: 320px; }
 }
 
 #views[hidden] { display: none; }
