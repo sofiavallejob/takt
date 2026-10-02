@@ -139,7 +139,7 @@ export function ensureCountry(c) {
   const span = Math.log(LMAX) - Math.log(LMIN);
   for (const g of all) {
     g.u = Math.max(0, Math.min(1, (Math.log(LMAX) - Math.log(Math.max(LMIN, g.len))) / span));
-    g.ratio = LMAX / Math.max(LMIN, g.len);   // used by harmonic tuning
+    g.ratio = LMAX / Math.max(LMIN, g.len);   // used by harmonics tuning
   }
   c.LMAX = LMAX;
 
@@ -153,7 +153,7 @@ export function ensureCountry(c) {
     if (!c.hasDelays) {
       // Claiming "under 1% late" from a feed with no punctuality in it would be
       // an invention, not a measurement.
-      c.NOTE[d] = 'Timetable only — this feed carries no punctuality data, so every train runs to plan.';
+      c.NOTE[d] = 'Timetable only: this feed carries no punctuality data, so every train runs to plan.';
       continue;
     }
     const r = c.DAYS[d].trains.filter(s => s.known && s.t0 >= 0);

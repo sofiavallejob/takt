@@ -113,7 +113,7 @@ function refreshNotes(sec) {
 }
 
 let notesKey = null;
-/** Note names only change when the chord does — or when the tuning is switched. */
+/** Note names only change when the chord does, or when the tuning is switched. */
 export function updateSidebarNotes(force) {
   const key = state.tuning + '|' + (state.tuning === 'harmonic' ? '' : Math.floor(state.T / 60) % 4);
   if (!force && key === notesKey) return;

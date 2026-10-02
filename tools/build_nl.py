@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build data/replay/nl.bin — the Netherlands pack — from Rijden de Treinen open data.
+"""Build data/replay/nl.bin, the Netherlands pack, from Rijden de Treinen open data.
 
 Sources (all fetched by tools/fetch_nl.sh, none committed):
   services-YYYY-MM.csv.gz  every train service, per stop, with realised delays
@@ -367,7 +367,7 @@ def main():
         print(f'track graph: {j} junctions, {e} edges, {p}/{len(stations)} stations pinned',
               file=sys.stderr)
     else:
-        print('! no rail.json — routes will be straight lines between stations',
+        print('! no rail.json, routes will be straight lines between stations',
               file=sys.stderr)
 
     cache = {}
@@ -379,7 +379,7 @@ def main():
         month = day[:7]
         path = SRC / f'services-{month}.csv.gz'
         if not path.exists():
-            sys.exit(f'missing {path} — run tools/fetch_nl.sh first')
+            sys.exit(f'missing {path}; run tools/fetch_nl.sh first')
         pretty = date.fromisoformat(day).strftime('%A %-d %B %Y')
         services = read_day(path, day, stations, project)
         days[day] = build_day(services, label, sub or pretty, net, project, cache)
@@ -408,7 +408,7 @@ def main():
 
     raw = json.dumps(pack, ensure_ascii=False, separators=(',', ':')).encode()
     OUT.write_bytes(gzip.compress(raw, 9))
-    print(f'wrote {OUT} — {len(raw)/1e6:.1f} MB raw, {OUT.stat().st_size/1e6:.2f} MB gzipped',
+    print(f'wrote {OUT}: {len(raw)/1e6:.1f} MB raw, {OUT.stat().st_size/1e6:.2f} MB gzipped',
           file=sys.stderr)
 
 

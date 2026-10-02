@@ -1,5 +1,5 @@
 // The Advanced panel: everything that shapes the sound but is not a transport
-// control — density, volume, tuning, labels, and the effects chain.
+// control: density, volume, tuning, labels, and the effects chain.
 
 import { FX_DEFAULTS } from '../config.js';
 import { state, $ } from '../state.js';

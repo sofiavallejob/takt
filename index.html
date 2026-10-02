@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Takt: rail networks as strings</title>
-<meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Sweden and Norway, or replay a recorded day in Austria, Switzerland, Germany, the Netherlands and Mexico City.">
+<meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Sweden and Norway, or replay a recorded day in Austria, Germany, Mexico City, the Netherlands and Switzerland.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🚆</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,7 +64,10 @@
             <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>
           </svg>
         </button>
-        <button class="b" id="pause" aria-label="Play" data-only="replay">▶</button>
+        <button class="b icon" id="pause" aria-label="Play" title="Play" data-playing="false" data-only="replay">
+          <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>
+          <svg class="hold" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4.2" height="15" rx="1"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1"/></svg>
+        </button>
         <button class="b" data-speed="1" title="Slow" aria-pressed="false" data-only="replay">½×</button>
         <button class="b" data-speed="3" title="Normal" aria-pressed="true" data-only="replay">1×</button>
         <button class="b" data-speed="10" title="Fast" aria-pressed="false" data-only="replay">3×</button>
@@ -75,7 +78,7 @@
         <span id="hint">Drag across the map to play it by hand</span>
         <button class="b" id="togside" aria-pressed="false">Strings</button>
         <button class="b" id="togadv" aria-pressed="false">Advanced</button>
-        <span class="foot">© 2026 Sofia Vallejo Budziszewski · IEM Graz · <a href="#" id="credlink2">Credits</a></span>
+        <span class="foot">© 2026 Sofia Vallejo Budziszewski · Institute for Electronic Music and Acoustics, University of Music and Performing Arts Graz, Austria · <a href="#" id="credlink2">Credits</a></span>
       </div>
     </div>
 
@@ -88,7 +91,7 @@
       <h4>Tuning</h4>
       <div class="seg" role="group" aria-label="Tuning">
         <button class="b" data-tuning="chord" aria-pressed="true">Chord</button>
-        <button class="b" data-tuning="harmonic" aria-pressed="false">Harmonic</button>
+        <button class="b" data-tuning="harmonic" aria-pressed="false">Harmonics</button>
       </div>
       <p class="note" id="tunenote"></p>
 
@@ -159,14 +162,14 @@
       drag behind the beat and drift out of tune. Cancelled trains leave only
       a click.</p>
     <p data-only="replay">Every route is a string, tuned by its length. Replay plays back a
-      recorded day in Austria, Switzerland, Germany, the Netherlands or the Mexico City
-      metro, on a clock you can pause, speed up and scrub. When a train crosses
+      recorded day in Austria, Germany, the Mexico City metro, the Netherlands or
+      Switzerland, on a clock you can pause, speed up and scrub. When a train crosses
       another line, that string sounds. Longer routes play lower. The harmony
       moves every hour. On-time trains land on the beat and in tune. Late trains
       drag behind and drift out of tune. Cancelled trains leave only a click.</p>
     <button id="go" disabled>Loading…</button>
     <p id="starterr" role="status"></p>
-    <p class="cred">© 2026 Sofia Vallejo Budziszewski · IEM Graz · <a href="#" id="credlink">Data sources and credits</a></p>
+    <p class="cred">© 2026 Sofia Vallejo Budziszewski · Institute for Electronic Music and Acoustics, University of Music and Performing Arts Graz, Austria · <a href="#" id="credlink">Data sources and credits</a></p>
   </div>
 </div>
 
@@ -175,7 +178,7 @@
     <h1>Data sources and credits</h1>
     <div id="credtext"></div>
     <button class="b" id="credclose">Back</button>
-    <p class="foot">© 2026 Sofia Vallejo Budziszewski · IEM, University of Music and Performing Arts Graz</p>
+    <p class="foot">© 2026 Sofia Vallejo Budziszewski · Institute for Electronic Music and Acoustics, University of Music and Performing Arts Graz, Austria</p>
   </div>
 </div>
 

@@ -9,7 +9,7 @@ along real track rather than a straight line.
 Degree-2 chains are contracted into single edges, which turns a third of a
 million raw points into a few thousand junctions and makes the shortest-path
 search cheap enough to run for every hop in the timetable. Stations are pinned
-as junctions before contraction — most of them sit mid-line and would otherwise
+as junctions before contraction: most of them sit mid-line and would otherwise
 be optimised away.
 """
 

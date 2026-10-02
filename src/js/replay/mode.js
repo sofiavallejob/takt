@@ -28,8 +28,9 @@ const wantsBad = hash => (hash || '').replace(/^#/, '').split('-')[1] === 'bad';
 
 function setPlaying(p) {
   state.playing = p;
-  $('pause').textContent = p ? '⏸' : '▶';
+  $('pause').dataset.playing = String(p);
   $('pause').setAttribute('aria-label', p ? 'Pause' : 'Play');
+  $('pause').title = p ? 'Pause' : 'Play';
 }
 
 function resetHeads() {

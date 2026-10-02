@@ -26,7 +26,7 @@ export function actualDist(s, T) {
   return s.d[k] + (s.d[k + 1] - s.d[k]) * Math.max(0, Math.min(1, f));
 }
 
-/** How far along the route the train was *meant* to be — the ghost ring. */
+/** How far along the route the train was *meant* to be: the ghost ring. */
 export function distAt(s, tp) {
   const t = s.t, n = t.length;
   if (tp <= t[0]) return s.d[0];

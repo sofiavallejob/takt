@@ -20,9 +20,9 @@ export function chordMidi(g, T) {
   return best;
 }
 
-/** Harmonic tuning: frequency is inversely proportional to length, the way a
+/** Harmonics tuning: frequency is inversely proportional to length, the way a
  *  real string behaves. The longest route in the country is the fundamental and
- *  everything else is its partial — honest, and towards the top it stops being
+ *  everything else is its partial: honest, and towards the top it stops being
  *  a melody and turns into a microtonal cluster. */
 export function harmonicFreq(g) {
   const f = mtof(RENDER_LO) * (g.ratio || 1);
@@ -35,7 +35,7 @@ export function freqForLine(g, T) {
 }
 
 /** Short label for the sidebar: a note name in chord tuning, the nearest note
- *  in harmonic tuning (where exact names rarely exist). */
+ *  in harmonics tuning (where exact names rarely exist). */
 export function labelForLine(g, T) {
   if (state.tuning !== 'harmonic') return noteName(chordMidi(g, T));
   return noteName(Math.round(ftom(harmonicFreq(g))));

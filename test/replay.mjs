@@ -23,7 +23,7 @@ const TYPES = {
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = '') => {
   if (cond) { pass++; console.log(`  ok   ${name}`); }
-  else { fail++; console.log(`  FAIL ${name}${detail ? ' — ' + detail : ''}`); }
+  else { fail++; console.log(`  FAIL ${name}${detail ? ': ' + detail : ''}`); }
 };
 
 function serve() {

@@ -144,7 +144,7 @@ export function claimSlot(k, cap = 2) {
 export function clearSlots() { slots.clear(); }
 
 /** Play a frequency. Buffers exist per semitone, so the fractional part is
- *  taken by `detune` — which is what lets harmonic tuning play notes that are
+ *  taken by `detune`, which is what lets harmonics tuning play notes that are
  *  not on the twelve-tone grid at all. `dist` (0 to 1) drives the note into
  *  distortion. */
 export function play(freq, when, pan, sourCents = 0, rough = false, amp = 1, dist = 0) {

@@ -10,7 +10,7 @@ import { chordAt, mtof } from './tuning.js';
 
 let BED = null;
 
-/** Root, fifth, third, ninth, sixth — spread upward from the bottom of the map. */
+/** Root, fifth, third, ninth, sixth, spread upward from the bottom of the map. */
 function voicing(ch) {
   const order = [ch.root % 12, ch.pcs[2], ch.pcs[1], ch.pcs[3], ch.pcs[4]], out = [];
   let m = 38; while (m % 12 !== order[0]) m++;
@@ -65,7 +65,7 @@ export function updateBed(now) {
   }
 
   const moving = state.moving;
-  // Nothing is running — the small hours, or a paused clock. Go properly quiet
+  // Nothing is running: the small hours, or a paused clock. Go properly quiet
   // rather than leaving a drone hanging under an empty network.
   if (!moving.length || !state.playing || !state.bedOn) {
     BED.out.gain.setTargetAtTime(0, t0, 0.5);

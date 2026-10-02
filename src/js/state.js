@@ -32,7 +32,7 @@ export const state = {
   bedOn: true,
   plays: 'both',   // what sounds: 'cross' (lines crossed), 'arrive' (own line at stations), 'both'
   lateFx: 'detune', // how lateness sounds: 'detune', 'distort' or 'both'
-  tuning: 'chord', // 'chord' | 'harmonic'
+  tuning: 'chord', // 'chord' | 'harmonic' (shown as Harmonics)
   soloLine: null,
 };
 

@@ -5,7 +5,7 @@ import { CREDITS_FI, CREDITS_HEL, CREDITS_SE, CREDITS_STO, CREDITS_NO, CREDITS_R
 import { TRAFIKVERKET_KEY } from '../keys.js';
 import { $ } from '../state.js';
 
-const REPLAY_ORDER = ['at', 'ch', 'de', 'nl', 'mx'];
+const REPLAY_ORDER = ['at', 'de', 'mx', 'nl', 'ch'];   // alphabetical, as in the picker
 
 function render() {
   const live = CREDITS_FI + CREDITS_HEL + (TRAFIKVERKET_KEY ? CREDITS_SE : '') + CREDITS_STO + CREDITS_NO;
@@ -22,7 +22,7 @@ export function openCredits() {
 
 export function closeCredits() { $('credits').hidden = true; }
 
-/** Wired once, at load — long before the instrument starts. */
+/** Wired once, at load, long before the instrument starts. */
 export function initCredits() {
   for (const id of ['credlink', 'credlink2']) {
     const a = $(id);

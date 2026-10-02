@@ -13,18 +13,35 @@ Takt has two modes, switched with **Live / Replay** at the top of the page:
 | Mode | Networks | What you hear |
 | --- | --- | --- |
 | **Live** | **Finland**, **Sweden**, **Norway**; the **Helsinki** and **Stockholm** metros and trams | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
-| **Replay** | **Austria**, **Switzerland**, **Germany**, the **Netherlands**, the **Mexico City metro** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
+| **Replay** | **Austria**, **Germany**, the **Mexico City metro**, the **Netherlands**, **Switzerland** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
 
-**▶ [sofiavallejob.github.io/takt-live](https://sofiavallejob.github.io/takt-live/)**
-· [Stockholm](https://sofiavallejob.github.io/takt-live/#sto)
-· [Helsinki](https://sofiavallejob.github.io/takt-live/#hel)
-· [Switzerland, replayed](https://sofiavallejob.github.io/takt-live/#ch)
-· [Germany, a bad day](https://sofiavallejob.github.io/takt-live/#de-bad)
+**▶ [sofiavallejob.github.io/takt](https://sofiavallejob.github.io/takt/)**
+· [Stockholm](https://sofiavallejob.github.io/takt/#sto)
+· [Helsinki](https://sofiavallejob.github.io/takt/#hel)
+· [Switzerland, replayed](https://sofiavallejob.github.io/takt/#ch)
+· [Germany, a bad day](https://sofiavallejob.github.io/takt/#de-bad)
 
 The address picks the mode: `#sto`, `#hel`, `#no` … are live; `#at`, `#ch`,
 `#de`, `#nl`, `#mx` are replay, and `-bad` opens a country's disrupted day. No
 address is live Finland. Switching mode in the page keeps the sound running and
 remembers where each mode was.
+
+---
+
+## What we are working on
+
+**Live**
+
+* Robustness when a server or feed goes down: keep playing what is known,
+  say clearly what is missing, and pick up again on its own when the feed
+  comes back.
+* New networks: Boston, Buenos Aires, Chicago, London, the Netherlands, Paris,
+  Seoul, Switzerland and Sydney.
+
+**Replay**
+
+* New recorded networks: Amtrak, Belgium, Japan, New York City and the
+  United Kingdom.
 
 ---
 
@@ -60,9 +77,9 @@ live instrument, because that is where the lines part.
 | Mode | What it does |
 | --- | --- |
 | **Chord** | Each string is pulled to the nearest note of the hour's chord (D, Bm, G, A). Musical, and the whole network stays in one harmony. |
-| **Harmonic** | Frequency is inversely proportional to length, the way a real string behaves. The longest route in the network is the fundamental; everything else is one of its partials. More honest, and towards the top it stops being a melody and turns into a microtonal cluster. |
+| **Harmonics** | Frequency is inversely proportional to length, the way a real string behaves. The longest route in the network is the fundamental; everything else is one of its partials. More honest, and towards the top it stops being a melody and turns into a microtonal cluster. |
 
-Harmonic tuning plays frequencies that are not on the twelve-tone grid at all.
+Harmonics tuning plays frequencies that are not on the twelve-tone grid at all.
 The sampler handles that by picking the nearest rendered semitone and taking the
 remainder in cents on the source's `detune`.
 
@@ -298,7 +315,7 @@ affecting the site.
 | **▶ ⏸ ½× 1× 3×** (replay) | Play / pause and speed. |
 | **Space** | Mute (live) or play / pause (replay) |
 | **Day bar** | How many trains run across the day, and where now is on it. In replay, drag it to scrub; ← → step 15 minutes. |
-| **Countries** | Live: Finland, Sweden, Norway, with views under each (Helsinki, Helsinki metro & tram; Mälardalen, Skåne, Stockholm metro & tram; Oslo region). Replay: Austria, Switzerland, Germany, the Netherlands, Mexico City, with an ordinary and a disrupted day where there is one. |
+| **Countries** | Live: Finland, Norway, Sweden, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram). Replay: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
 | **Tuning fork** | The bed chord on/off |
 | **Sun / moon** | Light or dark. Your choice is remembered; without one, it follows the system. |
 | **Strings** | Every line, grouped (by category live, by operator in replay). Click one to solo it. A group's rows are built the first time it opens. |
@@ -331,9 +348,9 @@ plan and the late/cancelled marks are left out of the key rather than invented.
 ## Credits
 
 Built by Sofia Vallejo Budziszewski as part of doctoral research at the
-[Institute of Electronic Music and Acoustics (IEM)](https://iem.kug.ac.at),
-University of Music and Performing Arts Graz. Inspired by Alexander Chen's
-[Conductor](http://mta.me) and Joshua Wolk's [Train Jazz](https://www.trainjazz.com).
+[Institute for Electronic Music and Acoustics](https://iem.kug.ac.at),
+University of Music and Performing Arts Graz, Austria. Inspired by Joshua Wolk's
+[Train Jazz](https://www.trainjazz.com).
 
 Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, HSL,
 Trafikverket, Samtrafiken, Entur and the operators and projects listed above,

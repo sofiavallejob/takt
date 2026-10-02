@@ -144,7 +144,7 @@ export const CREDITS_STO = `<h3>Stockholm metro and trams, live</h3><ul>
  *  polylines for 12 lines. Each entry folds a direction pair into a single
  *  string: `rep` is the polyline the string is drawn and plucked on, `clip`
  *  trims it to one direction where the feed stored an out-and-back loop.
- *  Terminals are the official ones — the feed's own `from`/`to` are whatever
+ *  Terminals are the official ones; the feed's own `from`/`to` are whatever
  *  stops the longest surviving trip happened to reach. */
 export const MX_LINES = [
   { id: '1',  name: 'Línea 1',  col: '#F04E98', from: 'Observatorio',   to: 'Pantitlán',            geoms: [0, 1],   rep: 0 },
@@ -187,19 +187,18 @@ export const CREDITS_REPLAY = {
     <li>Track geometry: OpenStreetMap (STC Metro relations), via the Overpass API</li>
     <li>Station names: OpenStreetMap</li>
     <li>Timetable: STC Metro GTFS from datos.cdmx.gob.mx (CC BY, via SEMOVI)</li>
-    <li>The feed carries no service for Línea 12, so it has no trains — the string is still there to play by hand.</li></ul>`,
+    <li>The feed carries no service for Línea 12, so it has no trains. The string is still there to play by hand.</li></ul>`,
 };
 
 export const CREDITS_GENERAL = `<h3>Sonification</h3>
   <p>Each route is a string tuned by its length. Trains pluck the lines they cross;
   the note you hear belongs to the line being crossed, not to the train's own line.
   In <em>chord</em> tuning the strings are snapped to a chord that moves every hour
-  (D, Bm, G, A). In <em>harmonic</em> tuning each string sounds at the frequency its
+  (D, Bm, G, A). In <em>harmonics</em> tuning each string sounds at the frequency its
   length implies, so the network tunes itself. Late trains drag behind the beat and
   go out of tune on a continuous curve; cancelled trains leave only a click.
-  Inspired by Alexander Chen's <a href="http://mta.me">Conductor</a> and Joshua Wolk's
-  <a href="https://www.trainjazz.com">Train Jazz</a>.</p>
+  Inspired by Joshua Wolk's <a href="https://www.trainjazz.com">Train Jazz</a>.</p>
   <h3>Credits</h3>
   <p>Built by Sofia Vallejo Budziszewski as part of doctoral research at the
-  <a href="https://iem.kug.ac.at">Institute of Electronic Music and Acoustics (IEM)</a>,
-  University of Music and Performing Arts Graz.</p>`;
+  <a href="https://iem.kug.ac.at">Institute for Electronic Music and Acoustics</a>,
+  University of Music and Performing Arts Graz, Austria.</p>`;
