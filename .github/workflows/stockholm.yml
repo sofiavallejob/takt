@@ -31,8 +31,8 @@ jobs:
       - name: Commit
         run: |
           rm sweden.zip
-          git config user.name 'takt-bot'
-          git config user.email 'takt-bot@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/sto
           git diff --cached --quiet || git commit -m "Stockholm timetable $(date -u +%F)"
           git pull --rebase
