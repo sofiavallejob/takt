@@ -54,19 +54,37 @@ async function setMode(m) {
 }
 
 let lastTs = 0;
-function frame(ts) {
+/** One step of the instrument: move the trains, sound what they pluck, and
+ *  (when the page can be seen) draw them. */
+function advance(ts, visible) {
   const now = performance.now();
-  const dt = lastTs ? Math.min(state.mode === 'live' ? 0.5 : 0.1, (ts - lastTs) / 1000) : 0;
+  // A hidden tab is ticked less evenly, so it may take a longer step.
+  const cap = !visible ? 1 : state.mode === 'live' ? 0.5 : 0.1;
+  const dt = lastTs ? Math.min(cap, Math.max(0, (ts - lastTs) / 1000)) : 0;
   lastTs = ts;
   if (!changing && !mode.busy()) {
     mode.step(dt);
     hourNote();
     updateBed(now);
-    draw(now);
-    updateClock(updateSidebarNotes, mode.status);
+    if (visible) {
+      draw(now);
+      updateClock(updateSidebarNotes, mode.status);
+    }
   }
-  trimTrail(now);
+  if (visible) trimTrail(now);
+}
+
+function frame(ts) {
+  if (!document.hidden) advance(ts, true);
   requestAnimationFrame(frame);
+}
+
+/** Browsers stop drawing a page in a hidden tab, and with it the frame loop.
+ *  The music must not stop with the picture, so a timer keeps the
+ *  instrument going while the tab is out of sight (a page that is playing
+ *  sound is allowed to keep its timers). */
+function background() {
+  setInterval(() => { if (document.hidden) advance(performance.now(), false); }, 100);
 }
 
 async function start(hash) {
@@ -119,6 +137,7 @@ async function start(hash) {
   };
 
   requestAnimationFrame(frame);
+  background();
 }
 
 async function boot() {

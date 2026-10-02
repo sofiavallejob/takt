@@ -71,12 +71,15 @@ function status() {
 
 /** One loop for both kinds of request, checked every second: each network
  *  says how often it wants trip changes and positions, and a network that has
- *  just been picked is asked straight away. Nothing is asked while the tab is
- *  hidden or replay is playing: nobody is listening, and the feeds have quotas. */
+ *  just been picked is asked straight away. Nothing is asked while static is
+ *  playing, or while the tab is hidden and muted: nobody is listening, and the
+ *  feeds have quotas. */
 const busy = { poll: false, gps: false };
 function tick() {
   setTimeout(tick, 1000);
-  if (!on || document.hidden || switching || !active) return;
+  // A hidden tab keeps asking while it is playing (the listener may have
+  // switched tabs to keep listening); muted and hidden, nobody is listening.
+  if (!on || (document.hidden && !state.playing) || switching || !active) return;
   const rec = active, now = Date.now(), still = () => on && active === rec && !switching;
   // A feed that answered "too many requests" is left alone for a while; the
   // trains keep running on the timetable meanwhile, quietly: the listener is

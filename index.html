@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Takt: rail networks as strings</title>
-<meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Sweden and Norway, or replay a recorded day in Austria, Germany, Mexico City, the Netherlands and Switzerland.">
+<meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Norway, Sweden and the United States, or play back a recorded day in Austria, Germany, Mexico City, the Netherlands and Switzerland.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
@@ -23,8 +23,7 @@
     <div id="top">
       <div>
         <div class="brand">
-          <img class="logo on-light" src="assets/logo-on-light.png" alt="" width="26" height="26">
-          <img class="logo on-dark" src="assets/logo-on-dark.png" alt="" width="26" height="26">
+          <img class="logo" src="assets/icon-192.png" alt="Takt" width="22" height="22">
           <h1 id="title">Finland</h1>
         </div>
         <div id="clock" aria-hidden="true"></div>
@@ -51,9 +50,9 @@
               <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>
             </svg>
           </button>
-          <div class="ctry" id="modes" role="group" aria-label="Live or replay">
+          <div class="ctry" id="modes" role="group" aria-label="Live or static">
             <button data-m="live" aria-pressed="true" title="The trains where they are right now">Live</button>
-            <button data-m="replay" aria-pressed="false" title="A recorded day, with a clock you can pause and scrub">Replay</button>
+            <button data-m="replay" aria-pressed="false" title="A recorded day, with a clock you can pause and scrub">Static</button>
           </div>
           <div class="ctry" id="ctry" role="group" aria-label="Network"></div>
         </div>
@@ -162,13 +161,12 @@
 
 <div id="start">
   <div>
-    <img class="startlogo on-light" src="assets/logo-on-light.png" alt="" width="84" height="84">
-    <img class="startlogo on-dark" src="assets/logo-on-dark.png" alt="" width="84" height="84">
+    <img class="startlogo" src="assets/icon-192.png" alt="" width="64" height="64">
     <h1>Takt</h1>
     <p class="sub">Rail networks as strings</p>
-    <div class="ctry" id="startmodes" role="group" aria-label="Live or replay">
+    <div class="ctry" id="startmodes" role="group" aria-label="Live or static">
       <button data-m="live" aria-pressed="true">Live</button>
-      <button data-m="replay" aria-pressed="false">Replay</button>
+      <button data-m="replay" aria-pressed="false">Static</button>
     </div>
     <p data-only="live">Every route is a string, tuned by its length. The trains on the map are
       where they are right now, in Finland, Sweden or Norway. When one
@@ -177,7 +175,7 @@
       lower. The harmony moves on the hour, local time. Trains running late
       drag behind the beat and drift out of tune. Cancelled trains leave only
       a click.</p>
-    <p data-only="replay">Every route is a string, tuned by its length. Replay plays back a
+    <p data-only="replay">Every route is a string, tuned by its length. Static plays back a
       recorded day in Austria, Germany, the Mexico City metro, the Netherlands or
       Switzerland, on a clock you can pause, speed up and scrub. When a train crosses
       another line, that string sounds. Longer routes play lower. The harmony

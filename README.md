@@ -8,12 +8,12 @@ routes play lower. The harmony moves every hour. On-time trains land on the
 beat and in tune; late trains drag behind and drift out of tune; cancelled
 trains leave only a click.
 
-Takt has two modes, switched with **Live / Replay** at the top of the page:
+Takt has two modes, switched with **Live / Static** at the top of the page:
 
 | Mode | Networks | What you hear |
 | --- | --- | --- |
 | **Live** | **Finland**, **Norway**, **Sweden**; the **Helsinki** and **Stockholm** metros and trams; in the **United States**, the **Boston** and **New York** subways, **Los Angeles** Metro Rail and buses, and **San Francisco**'s BART, Muni Metro, streetcar and cable cars | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
-| **Replay** | **Austria**, **Germany**, the **Mexico City metro**, the **Netherlands**, **Switzerland** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
+| **Static** | **Austria**, **Germany**, the **Mexico City metro**, the **Netherlands**, **Switzerland** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
 
 **▶ [sofiavallejob.github.io/takt](https://sofiavallejob.github.io/takt/)**
 · [Stockholm](https://sofiavallejob.github.io/takt/#sto)
@@ -22,11 +22,11 @@ Takt has two modes, switched with **Live / Replay** at the top of the page:
 · [New York](https://sofiavallejob.github.io/takt/#nyc)
 · [San Francisco](https://sofiavallejob.github.io/takt/#sf)
 · [Helsinki](https://sofiavallejob.github.io/takt/#hel)
-· [Switzerland, replayed](https://sofiavallejob.github.io/takt/#ch)
+· [Switzerland, static](https://sofiavallejob.github.io/takt/#ch)
 · [Germany, a bad day](https://sofiavallejob.github.io/takt/#de-bad)
 
 The address picks the mode: `#sto`, `#hel`, `#no`, `#bos`, `#la`, `#nyc`, `#sf`, `#bay` … are live; `#at`, `#ch`,
-`#de`, `#nl`, `#mx` are replay, and `-bad` opens a country's disrupted day. No
+`#de`, `#nl`, `#mx` are static, and `-bad` opens a country's disrupted day. No
 address is live Finland. Switching mode in the page keeps the sound running and
 remembers where each mode was.
 
@@ -46,7 +46,7 @@ remembers where each mode was.
 * New York's buses: the MTA's bus feed needs a key and cannot be read by a web
   page directly, so it would need a small proxy.
 
-**Replay**
+**Static**
 
 * New recorded networks: Amtrak, Belgium, Japan, New York City and the
   United Kingdom.
@@ -74,7 +74,7 @@ open country:
 | Where | What sounds |
 | --- | --- |
 | A station on the train's route that another line also passes through | Lines that meet the route there without sharing track with it: full note. Lines the train is parting from (they shared track up to here): softer. At most three per station, strummed. |
-| Open country | Any line the train's path cuts across at a steep angle, as in replay. |
+| Open country | Any line the train's path cuts across at a steep angle, as in static. |
 | A passenger stop | The train's own line, softly, at that point on the string. Switch off in Advanced → Plays when a train. |
 
 In practice Pasila, Kerava, Riihimäki and Tampere are the loudest places on the
@@ -135,8 +135,10 @@ estimate until then.
   limits Finland itself reports punctuality against. A late train shows a ring
   where the timetable says it should be.
 * **Cancelled** trains move on their timetable as dashed rings and click.
-* **Polling stops** while the tab is hidden or replay is playing: nobody is
-  listening, and the feeds have quotas.
+* **It keeps playing in a background tab.** Polling stops only while static is
+  playing, or while the tab is hidden *and* muted: then nobody is listening, and
+  the feeds have quotas. (Safari on iPhone silences every page in the
+  background, whatever the page does.)
 
 The clock and the hourly chord follow local time where the trains are, so
 Stockholm and Oslo run an hour behind Finland, Boston and New York seven hours
@@ -209,7 +211,7 @@ static page cannot read directly; those would need a small proxy.
 
 ---
 
-## Replay: the recorded days
+## Static: the recorded days
 
 Each `data/replay/*.bin` is gzipped JSON, fetched only when its country is
 picked (Mexico City is 64 KB, the Netherlands 580 KB, Austria 1 MB, Germany
@@ -239,7 +241,7 @@ be played by hand.
 
 ### Rebuilding the Dutch pack
 
-`data/replay/nl.bin` is the only replay pack this repository can rebuild from
+`data/replay/nl.bin` is the only static pack this repository can rebuild from
 source. The Dutch feed gives a stop list, not a shape, so `tools/track.py` welds
 every OSM running line into a graph, pins all 397 stations onto it, and routes
 each hop a train makes along real track. Roughly 6% of hops fall back to a
@@ -268,13 +270,13 @@ npm start            # python3 -m http.server 8000
 # → http://localhost:8000/#sto     live, Stockholm metro
 # → http://localhost:8000/#bos     live, Boston subway
 # → http://localhost:8000/#sf      live, San Francisco
-# → http://localhost:8000/#ch      replay, Switzerland
-# → http://localhost:8000/#de-bad  replay, Germany's disrupted day
+# → http://localhost:8000/#ch      static, Switzerland
+# → http://localhost:8000/#de-bad  static, Germany's disrupted day
 ```
 
 Deploying to GitHub Pages: Settings → Pages → deploy from `main`, root folder.
 `.nojekyll` is present so Jekyll does not swallow anything, and every path is
-relative, so it works from a project subpath. Bundled data is the replay packs
+relative, so it works from a project subpath. Bundled data is the static packs
 (~9.3 MB, each downloaded only when picked), the region outlines, and the daily
 Stockholm, Helsinki and San Francisco timetables, which `.github/workflows/`
 rebuild every day. The San Francisco build needs the repository secret
@@ -287,18 +289,18 @@ Two end-to-end smoke tests drive the real page in headless Chromium:
 ```sh
 npm install
 npx playwright install chromium
-npm run test:replay           # replay, all five networks, offline (~2 min)
+npm run test:replay           # static, all five networks, offline (~2 min)
 node test/replay.mjs mx       # just one
 npm run test:live             # live, against the real feeds (~3 min)
 node test/live.mjs --shots    # also writes screenshots to test/shots/
 npm test                      # both
 ```
 
-The replay test covers the module graph, the start screen, the Mexico City line
+The static test covers the module graph, the start screen, the Mexico City line
 table, both tunings, the strings panel, the theme switch, deep links, and a
 measurement that a dense hand strum stays below the clipping ceiling. The live
 test listens for one real minute and needs network access and a Stockholm
-timetable for today in `data/sto/`; it ends by switching to replay and back.
+timetable for today in `data/sto/`; it ends by switching to static and back.
 
 ---
 
@@ -309,7 +311,7 @@ index.html              markup for both modes; [data-only] marks what belongs to
 assets/                 the logo (dark and light versions), the tab icons and the home-screen icon
 src/css/takt.css        all styling; colour tokens are written by theme.js
 src/js/
-  main.js               boot, the Live / Replay switch, the frame loop
+  main.js               boot, the Live / Static switch, the frame loop
   config.js             categories, chords, live views, the Mexico City line table, credits
   state.js              the one shared mutable object
   theme.js              light/dark, and the canvas palette that must match the CSS
@@ -333,7 +335,7 @@ src/js/
     network.js          projection, strings, trains, merging updates, tuning
     clock.js            local time of the network, whatever the listener's zone
   replay/
-    mode.js             replay mode: countries, days, play/pause, speed, scrubbing
+    mode.js             static mode: countries, days, play/pause, speed, scrubbing
     step.js             moving the recorded trains; crossings
     loader.js           fetch + gunzip the country packs
     decode.js           unpack into typed arrays; fold directions into strings
@@ -352,15 +354,15 @@ data/
   *-regions.json        live outlines (geoBoundaries, ODbL)
   sto/ hel/ sf/         live timetables, one file per day, rebuilt daily
   nyc/ la/              stopping patterns, rebuilt monthly
-  replay/index.json     replay manifest: order, names, file paths
+  replay/index.json     static manifest: order, names, file paths
   replay/*.bin          one gzipped JSON pack per recorded network
 tools/
   build_sto.py build_hel.py build_sf.py    cut the daily timetables
   build_patterns.py     stopping patterns for New York and Los Angeles
   build_us_regions.py   US outlines (towns, counties and cities around each US network)
-  fetch_nl.sh build_nl.py track.py    rebuild the Dutch replay pack
+  fetch_nl.sh build_nl.py track.py    rebuild the Dutch static pack
 .github/workflows/      the daily Stockholm, Helsinki and San Francisco builds; monthly patterns
-test/replay.mjs         replay smoke test (offline)
+test/replay.mjs         static smoke test (offline)
 test/live.mjs           live smoke test (real feeds)
 archive/
   takt-v0-single-file.html   the original one-file version, kept for reference
@@ -377,17 +379,17 @@ affecting the site.
 
 | | |
 | --- | --- |
-| **Live / Replay** | The mode. Each remembers its network, view, day and time. |
+| **Live / Static** | The mode. Each remembers its network, view, day and time. |
 | **Drag on the map** | Play the network by hand. Crossed strings are strummed low to high. |
 | **Speaker** (live) | Mute / unmute. The trains keep moving; only the sound stops. |
-| **▶ ⏸ ½× 1× 3×** (replay) | Play / pause and speed. |
-| **Space** | Mute (live) or play / pause (replay) |
-| **Day bar** | How many trains run across the day, and where now is on it. In replay, drag it to scrub; ← → step 15 minutes. |
-| **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Replay: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
+| **▶ ⏸ ½× 1× 3×** (static) | Play / pause and speed. |
+| **Space** | Mute (live) or play / pause (static) |
+| **Day bar** | How many trains run across the day, and where now is on it. In static, drag it to scrub; ← → step 15 minutes. |
+| **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Static: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
 | **Tuning fork** | The bed chord on/off |
 | **Corners** (or **F**) | Full screen on and off. Hidden where a browser cannot show a page full screen (Safari on iPhone). |
 | **Sun / moon** | Light or dark. Your choice is remembered; without one, it follows the system. |
-| **Strings** | Every line, grouped (by category live, by operator in replay). Click one to solo it. A group's rows are built the first time it opens. |
+| **Strings** | Every line, grouped (by category live, by operator in static). Click one to solo it. A group's rows are built the first time it opens. |
 | **Advanced** | Tuning; what plays (live: lines crossed, arrivals, or both); how late trains sound (detuned, distorted, or both); density, volume, city labels and the effects chain. |
 
 ---
@@ -408,11 +410,11 @@ affecting the site.
 | San Francisco, live and timetable | BART and Muni GTFS and GTFS Realtime via [511.org](https://511.org/open-data/transit), Metropolitan Transportation Commission |
 | US outlines | US Census Bureau cartographic boundary files (public domain) |
 | Live outlines (regions, municipalities) | [geoBoundaries](https://www.geoboundaries.org) FIN, SWE, NOR, from OpenStreetMap (ODbL) |
-| Austria, replay | Mobilitätsverbünde Österreich GTFS (CC BY 4.0); ÖBB-Infrastruktur Zugfahrten (CC BY 3.0 AT); ÖBB GeoNetz; borders from [ginseng666](https://github.com/ginseng666/GeoJSON-TopoJSON-Austria) |
-| Switzerland, replay | geOps GTFS; opentransportdata.swiss Ist-Daten; Federal Office of Transport Schienennetz; borders from [click_that_hood](https://github.com/codeforgermany/click_that_hood) |
-| Germany, replay | [piebro/deutsche-bahn-data](https://github.com/piebro/deutsche-bahn-data) (CC BY 4.0, from the DB Timetable API); DB InfraGO (GeoZG); borders from [deutschlandGeoJSON](https://github.com/isellsoap/deutschlandGeoJSON) |
-| Netherlands, replay | [Rijden de Treinen](https://www.rijdendetreinen.nl/open-data) service archive (CC BY 4.0); OpenStreetMap running lines, via Overpass (ODbL); provinces from [cartomap.github.io/nl](https://cartomap.github.io/nl/) |
-| Mexico City, replay | STC Metro GTFS, datos.cdmx.gob.mx (CC BY, via SEMOVI), timetable only, no punctuality; OpenStreetMap STC Metro relations, via Overpass |
+| Austria, static | Mobilitätsverbünde Österreich GTFS (CC BY 4.0); ÖBB-Infrastruktur Zugfahrten (CC BY 3.0 AT); ÖBB GeoNetz; borders from [ginseng666](https://github.com/ginseng666/GeoJSON-TopoJSON-Austria) |
+| Switzerland, static | geOps GTFS; opentransportdata.swiss Ist-Daten; Federal Office of Transport Schienennetz; borders from [click_that_hood](https://github.com/codeforgermany/click_that_hood) |
+| Germany, static | [piebro/deutsche-bahn-data](https://github.com/piebro/deutsche-bahn-data) (CC BY 4.0, from the DB Timetable API); DB InfraGO (GeoZG); borders from [deutschlandGeoJSON](https://github.com/isellsoap/deutschlandGeoJSON) |
+| Netherlands, static | [Rijden de Treinen](https://www.rijdendetreinen.nl/open-data) service archive (CC BY 4.0); OpenStreetMap running lines, via Overpass (ODbL); provinces from [cartomap.github.io/nl](https://cartomap.github.io/nl/) |
+| Mexico City, static | STC Metro GTFS, datos.cdmx.gob.mx (CC BY, via SEMOVI), timetable only, no punctuality; OpenStreetMap STC Metro relations, via Overpass |
 
 Because the Mexico City feed has no punctuality in it, every train there runs to
 plan and the late/cancelled marks are left out of the key rather than invented.

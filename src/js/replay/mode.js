@@ -81,7 +81,7 @@ function applyCountry(k) {
     b.setAttribute('aria-pressed', String(b.dataset.c === k)));
   $('title').textContent = c.name;
   $('tcountsub').textContent = getManifest()?.trains?.[k] || '';
-  document.title = `Takt: ${c.name}, replay`;
+  document.title = `Takt: ${c.name}, static`;
   buildKey();
   buildDayButtons();
   setDay(Object.keys(c.days)[0]);
@@ -149,7 +149,7 @@ function wire() {
 
 export const replay = {
   key: 'replay',
-  label: 'Replay',
+  label: 'Static',
 
   /** The manifest is tiny and local; it is read first so the address can be
    *  matched against the recorded countries. */
