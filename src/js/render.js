@@ -183,4 +183,53 @@ export function draw(now) {
       if (b > a) span(tails[ci][j], tr.path, a, b);
     }
   }
-  groups.fo
+  groups.forEach((gr, i) => {
+    ctx.strokeStyle = gr.col;
+    tails[i].forEach((p2, j) => {
+      ctx.globalAlpha = TAIL_A[j] * theme.tailAlpha;
+      ctx.lineWidth = Math.max(3, 6 * k * rr) * TAIL_W[j];
+      ctx.stroke(p2);
+    });
+  });
+  ctx.globalAlpha = 1;
+  for (const tr of state.moving) {
+    const x = X(tr.x), y = Y(tr.y), r = Math.max(2, (tr.c <= 2 ? 3.2 : 2.5) * k * rr);
+    if (x < -10 || y < -10 || x > W + 10 || y > H + 10) continue;
+    if (tr.canc) { dead.moveTo(x + r + 0.5, y); dead.arc(x, y, r + 0.5, 0, 7); continue; }
+    const ci = Math.min(groups.length - 1, tr.ci);
+    dots[ci].moveTo(x + r, y); dots[ci].arc(x, y, r, 0, 7);
+    if (tr.late >= tr.lateThr) {            // the ghost of where the train should be
+      const gp = pointAt(tr.path, distAt(tr, state.N)), gx = X(gp[0]), gy = Y(gp[1]);
+      rings[ci].moveTo(gx + r + 2, gy); rings[ci].arc(gx, gy, r + 2, 0, 7);
+    }
+  }
+  ctx.lineWidth = 1.1;
+  groups.forEach((gr, i) => { ctx.strokeStyle = gr.col; ctx.stroke(rings[i]); });
+  groups.forEach((gr, i) => { ctx.fillStyle = gr.col; ctx.fill(dots[i]); });
+  if (!busy) {
+    ctx.strokeStyle = theme.halo; ctx.lineWidth = 0.9;
+    groups.forEach((gr, i) => ctx.stroke(dots[i]));
+  }
+  ctx.strokeStyle = '#8a97a4'; ctx.lineWidth = 1.2; ctx.stroke(dead);
+
+  if (label && now - label.t < 2400) {
+    const a = 1 - Math.max(0, (now - label.t - 1600) / 800);
+    const lx = Math.min(W - 300, X(label.x) + 14), ly = Math.max(40, Y(label.y) - 34);
+    ctx.globalAlpha = a;
+    ctx.textBaseline = 'alphabetic';
+    ctx.lineWidth = 4; ctx.strokeStyle = theme.halo; ctx.fillStyle = theme.ink;
+    ctx.font = '600 13.5px "Bricolage Grotesque", sans-serif';
+    ctx.strokeText(label.text, lx, ly); ctx.fillText(label.text, lx, ly);
+    ctx.font = '400 12.5px "Bricolage Grotesque", sans-serif';
+    ctx.strokeText(label.sub, lx, ly + 17); ctx.fillText(label.sub, lx, ly + 17);
+    ctx.globalAlpha = 1;
+  }
+
+  if (trail.length > 1) {
+    ctx.strokeStyle = theme.trail; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(trail[0][0], trail[0][1]);
+    for (const p of trail) ctx.lineTo(p[0], p[1]);
+    ctx.stroke();
+  }
+}
