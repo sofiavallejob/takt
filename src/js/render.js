@@ -66,8 +66,9 @@ export function drawNet() {
   c.strokeStyle = theme.border; c.lineWidth = 1; c.stroke();
 
   const solo = state.soloLine;
-  // Longest first, so commuter lines stay visible where they share track.
-  const order = state.S.lines.slice().sort((a, b) => b.len - a.len);
+  // Longest first, so commuter lines stay visible where they share track;
+  // strings a network puts on top (rail over buses) last of all.
+  const order = state.S.lines.slice().sort((a, b) => (a.top ? 1 : 0) - (b.top ? 1 : 0) || b.len - a.len);
   for (const g of order) {
     const dim = solo && solo !== g;
     c.globalAlpha = dim ? 0.03 : theme.netAlpha;

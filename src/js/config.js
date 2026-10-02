@@ -94,6 +94,26 @@ export const VIEWS = {
       'Wonderland', 'Kenmore', 'Boston College', 'Riverside', 'Heath Street', 'Medford/Tufts', 'Airport', 'Quincy Center'],
     small: ['Kenmore', 'Heath Street', 'Airport', 'Quincy Center', 'Mattapan'],
   },
+  nyc: {
+    name: 'New York',
+    box: [-74.26, 40.5, -73.74, 40.91],
+    cities: ['Times Sq-42 St', 'Grand Central-42 St', 'Fulton St', 'Atlantic Av-Barclays Ctr', 'Van Cortlandt Park-242 St',
+      'Inwood-207 St', 'Wakefield-241 St', 'Pelham Bay Park', 'Flushing-Main St', 'Jamaica Center-Parsons/Archer',
+      'Far Rockaway-Mott Av', 'Coney Island-Stillwell Av', 'Bay Ridge-95 St', 'Canarsie-Rockaway Pkwy',
+      'Astoria-Ditmars Blvd', 'Forest Hills-71 Av', 'St George', 'Tottenville'],
+    small: ['Grand Central-42 St', 'Fulton St', 'Pelham Bay Park', 'Canarsie-Rockaway Pkwy', 'Astoria-Ditmars Blvd',
+      'Forest Hills-71 Av', 'Bay Ridge-95 St'],
+  },
+  la: {
+    name: 'Los Angeles',
+    box: [-118.62, 33.72, -117.7, 34.33],
+    cities: ['Union Station', '7th Street / Metro Center Station', 'Downtown Long Beach Station', 'Downtown Santa Monica Station',
+      'North Hollywood Station', 'Pomona North Station', 'LAX / Metro Transit Center', 'Redondo Beach Station',
+      'Atlantic Station', 'Norwalk Station', 'Hollywood / Highland Station', 'Culver City Station', 'Memorial Park Station',
+      'Downtown Inglewood Station'],
+    small: ['7th Street / Metro Center Station', 'Hollywood / Highland Station', 'Culver City Station',
+      'Downtown Inglewood Station', 'Atlantic Station', 'Memorial Park Station'],
+  },
   sf: {
     name: 'San Francisco',
     box: [-122.515, 37.7, -122.375, 37.815],
@@ -132,6 +152,18 @@ export const CITY_NAMES = {
   'Wawona/46th Ave /Sf Zoo': 'Zoo', '24th Street / Mission': 'Mission', 'Chinatown - Rose Pak Station': 'Chinatown',
   '12th Street / Oakland City Center': 'Oakland', 'Dublin / Pleasanton': 'Dublin', 'Berryessa / North San Jose': 'San José',
   'San Francisco International Airport': 'SFO', 'Oakland International Airport': 'OAK', 'Downtown Berkeley': 'Berkeley',
+  // New York
+  'Times Sq-42 St': 'Times Square', 'Grand Central-42 St': 'Grand Central', 'Fulton St': 'Fulton St',
+  'Atlantic Av-Barclays Ctr': 'Atlantic Av', 'Van Cortlandt Park-242 St': 'Van Cortlandt Park', 'Inwood-207 St': 'Inwood',
+  'Wakefield-241 St': 'Wakefield', 'Flushing-Main St': 'Flushing', 'Jamaica Center-Parsons/Archer': 'Jamaica',
+  'Far Rockaway-Mott Av': 'Far Rockaway', 'Coney Island-Stillwell Av': 'Coney Island', 'Bay Ridge-95 St': 'Bay Ridge',
+  'Canarsie-Rockaway Pkwy': 'Canarsie', 'Astoria-Ditmars Blvd': 'Astoria', 'Forest Hills-71 Av': 'Forest Hills',
+  // Los Angeles
+  '7th Street / Metro Center Station': '7th St/Metro Center', 'Downtown Long Beach Station': 'Long Beach',
+  'Downtown Santa Monica Station': 'Santa Monica', 'North Hollywood Station': 'North Hollywood',
+  'Pomona North Station': 'Pomona', 'LAX / Metro Transit Center': 'LAX', 'Redondo Beach Station': 'Redondo Beach',
+  'Atlantic Station': 'East LA', 'Norwalk Station': 'Norwalk', 'Hollywood / Highland Station': 'Hollywood',
+  'Culver City Station': 'Culver City', 'Memorial Park Station': 'Pasadena', 'Downtown Inglewood Station': 'Inglewood',
 };
 
 /** Commuter line letters that are one string. The ring line runs as I one way
@@ -163,11 +195,13 @@ export const CREDITS_HEL = `<h3>Helsinki metro and trams, live</h3><ul>
   <li>Municipal outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> FIN ADM3, from OpenStreetMap (ODbL)</li>
   <li>Lines are drawn stop to stop; the two platforms of a stop are one point.</li></ul>`;
 
-export const CREDITS_US = `<h3>Boston and San Francisco, live</h3><ul>
+export const CREDITS_US = `<h3>Boston, Los Angeles, New York and San Francisco, live</h3><ul>
   <li>Boston: vehicle positions, trips and stopping patterns from the <a href="https://www.mbta.com/developers/v3-api">MBTA V3 API</a> (MBTA Developers License)</li>
+  <li>Los Angeles: Metro Rail and Metro Bus positions and predictions from the <a href="https://api.metro.net">LA Metro API</a>; stopping patterns from LA Metro's GTFS</li>
+  <li>New York: subway and Staten Island Railway predictions from the <a href="https://api.mta.info">MTA GTFS Realtime feeds</a>; stopping patterns from the MTA's GTFS</li>
   <li>San Francisco: BART and Muni GTFS and GTFS Realtime via <a href="https://511.org/open-data/transit">511.org</a>, Metropolitan Transportation Commission; the timetables are cut to the rail lines once a day</li>
   <li>Outlines: US Census Bureau cartographic boundary files (public domain)</li>
-  <li>Boston's subway runs to headways, so its trains are placed from where they are, at each line's typical speed, and are never late. Lines are drawn station to station.</li></ul>`;
+  <li>Boston, New York and Los Angeles are placed from where their vehicles are or will next be, along each line's stopping pattern, and are never late. Lines are drawn station to station.</li></ul>`;
 
 export const CREDITS_STO = `<h3>Stockholm metro and trams, live</h3><ul>
   <li>Live trip updates and vehicle positions: <a href="https://www.trafiklab.se/api/gtfs-datasets/gtfs-sweden/">GTFS Sweden 3 Realtime</a>, Samtrafiken via Trafiklab (CC0)</li>

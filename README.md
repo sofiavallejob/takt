@@ -12,18 +12,20 @@ Takt has two modes, switched with **Live / Replay** at the top of the page:
 
 | Mode | Networks | What you hear |
 | --- | --- | --- |
-| **Live** | **Finland**, **Norway**, **Sweden**; the **Helsinki** and **Stockholm** metros and trams; in the **United States**, the **Boston** subway and **San Francisco**'s BART, Muni Metro, streetcar and cable cars | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
+| **Live** | **Finland**, **Norway**, **Sweden**; the **Helsinki** and **Stockholm** metros and trams; in the **United States**, the **Boston** and **New York** subways, **Los Angeles** Metro Rail and buses, and **San Francisco**'s BART, Muni Metro, streetcar and cable cars | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
 | **Replay** | **Austria**, **Germany**, the **Mexico City metro**, the **Netherlands**, **Switzerland** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
 
 **▶ [sofiavallejob.github.io/takt](https://sofiavallejob.github.io/takt/)**
 · [Stockholm](https://sofiavallejob.github.io/takt/#sto)
 · [Boston](https://sofiavallejob.github.io/takt/#bos)
+· [Los Angeles](https://sofiavallejob.github.io/takt/#la)
+· [New York](https://sofiavallejob.github.io/takt/#nyc)
 · [San Francisco](https://sofiavallejob.github.io/takt/#sf)
 · [Helsinki](https://sofiavallejob.github.io/takt/#hel)
 · [Switzerland, replayed](https://sofiavallejob.github.io/takt/#ch)
 · [Germany, a bad day](https://sofiavallejob.github.io/takt/#de-bad)
 
-The address picks the mode: `#sto`, `#hel`, `#no`, `#bos`, `#sf`, `#bay` … are live; `#at`, `#ch`,
+The address picks the mode: `#sto`, `#hel`, `#no`, `#bos`, `#la`, `#nyc`, `#sf`, `#bay` … are live; `#at`, `#ch`,
 `#de`, `#nl`, `#mx` are replay, and `-bad` opens a country's disrupted day. No
 address is live Finland. Switching mode in the page keeps the sound running and
 remembers where each mode was.
@@ -39,7 +41,10 @@ remembers where each mode was.
   comes back.
 * New networks: Buenos Aires, Chicago, London, the Netherlands, Paris, Seoul,
   Switzerland and Sydney; the Oslo metro and trams (and perhaps buses).
-* Boston's commuter rail, which runs to a timetable and so can be late.
+* Boston's commuter rail, the LIRR and Metro-North, which run to timetables and
+  so can be late.
+* New York's buses: the MTA's bus feed needs a key and cannot be read by a web
+  page directly, so it would need a small proxy.
 
 **Replay**
 
@@ -134,8 +139,8 @@ estimate until then.
   listening, and the feeds have quotas.
 
 The clock and the hourly chord follow local time where the trains are, so
-Stockholm and Oslo run an hour behind Finland, Boston seven hours behind it, and
-San Francisco ten.
+Stockholm and Oslo run an hour behind Finland, Boston and New York seven hours
+behind it, and Los Angeles and San Francisco ten.
 
 ### Boston
 
@@ -148,6 +153,25 @@ its vehicle's pattern, timed from where the vehicle is at the line's typical
 speed, with its GPS fix on top. One string per branch (the Red Line is
 Alewife–Ashmont and Alewife–Braintree); short turns sound on their line's main
 string. Nothing is ever late, so the key leaves the late and cancelled marks out.
+
+### New York and Los Angeles
+
+`live/nyc.js` and `live/la.js` work like Boston, through one shared module,
+`live/patterns.js`: every vehicle is laid onto its line's stopping pattern,
+timed from the arrivals the feed predicts for its next stations, or failing
+those from where it is now. The patterns (each sequence of stations a line runs,
+with typical minutes between them) are built from the operators' GTFS by
+`tools/build_patterns.py` into `data/nyc/` and `data/la/`, and rebuilt on the
+first of every month by `.github/workflows/patterns.yml`. Nothing is late.
+
+* **New York**: the subway and the Staten Island Railway, from the MTA's eight
+  GTFS Realtime feeds (no key), every 30 seconds. Trains underground report no
+  position, so predictions alone place them. Express variants (FX, 6X, 7X) play
+  their line's string.
+* **Los Angeles**: Metro Rail (A, B, C, D, E, K) and Metro's ~110 bus routes, from
+  LA Metro's API (no key). It streams over a WebSocket; the whole bus fleet is
+  about 60 KB a second, so every 30 seconds the page listens for six seconds and
+  hangs up. Rail is drawn over the buses, and the buses are the small grey dots.
 
 ### San Francisco
 
@@ -301,6 +325,9 @@ src/js/
     sto.js gtfsrt.js    Stockholm: daily timetable plus GTFS Realtime
     bos.js              Boston subway: MBTA V3 API, stopping patterns plus vehicles
     sf.js               San Francisco: daily timetable plus 511 GTFS Realtime
+    patterns.js         networks placed onto stopping patterns from their vehicles
+    nyc.js              New York subway: MTA GTFS Realtime
+    la.js               Los Angeles Metro rail and bus: LA Metro's WebSocket
     hel.js mqtt.js      Helsinki metro and trams: HSL GTFS plus HFP over MQTT
     network.js          projection, strings, trains, merging updates, tuning
     clock.js            local time of the network, whatever the listener's zone
@@ -323,13 +350,15 @@ src/js/
 data/
   *-regions.json        live outlines (geoBoundaries, ODbL)
   sto/ hel/ sf/         live timetables, one file per day, rebuilt daily
+  nyc/ la/              stopping patterns, rebuilt monthly
   replay/index.json     replay manifest: order, names, file paths
   replay/*.bin          one gzipped JSON pack per recorded network
 tools/
   build_sto.py build_hel.py build_sf.py    cut the daily timetables
-  build_us_regions.py   US outlines (Boston towns, Bay Area counties)
+  build_patterns.py     stopping patterns for New York and Los Angeles
+  build_us_regions.py   US outlines (towns, counties and cities around each US network)
   fetch_nl.sh build_nl.py track.py    rebuild the Dutch replay pack
-.github/workflows/      the daily Stockholm, Helsinki and San Francisco builds
+.github/workflows/      the daily Stockholm, Helsinki and San Francisco builds; monthly patterns
 test/replay.mjs         replay smoke test (offline)
 test/live.mjs           live smoke test (real feeds)
 archive/
@@ -353,7 +382,7 @@ affecting the site.
 | **▶ ⏸ ½× 1× 3×** (replay) | Play / pause and speed. |
 | **Space** | Mute (live) or play / pause (replay) |
 | **Day bar** | How many trains run across the day, and where now is on it. In replay, drag it to scrub; ← → step 15 minutes. |
-| **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, San Francisco, Bay Area). Replay: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
+| **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Replay: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
 | **Tuning fork** | The bed chord on/off |
 | **Sun / moon** | Light or dark. Your choice is remembered; without one, it follows the system. |
 | **Strings** | Every line, grouped (by category live, by operator in replay). Click one to solo it. A group's rows are built the first time it opens. |
@@ -372,6 +401,8 @@ affecting the site.
 | Helsinki timetable | [HSL GTFS](https://www.hsl.fi/en/hsl/open-data), cut daily by `tools/build_hel.py` (CC BY 4.0) |
 | Stockholm metro, live and timetable | GTFS Sweden 3 Realtime and static, Samtrafiken via Trafiklab (CC0) |
 | Boston subway, live | [MBTA V3 API](https://www.mbta.com/developers/v3-api) (MBTA Developers License) |
+| New York subway, live and patterns | [MTA GTFS Realtime and GTFS](https://api.mta.info) |
+| Los Angeles Metro, live and patterns | [LA Metro API](https://api.metro.net) and LA Metro GTFS ([gitlab.com/LACMTA](https://gitlab.com/LACMTA)) |
 | San Francisco, live and timetable | BART and Muni GTFS and GTFS Realtime via [511.org](https://511.org/open-data/transit), Metropolitan Transportation Commission |
 | US outlines | US Census Bureau cartographic boundary files (public domain) |
 | Live outlines (regions, municipalities) | [geoBoundaries](https://www.geoboundaries.org) FIN, SWE, NOR, from OpenStreetMap (ODbL) |
@@ -394,5 +425,5 @@ University of Music and Performing Arts Graz, Austria. Inspired by Joshua Wolk's
 [Train Jazz](https://www.trainjazz.com).
 
 Code is MIT (see [LICENSE](LICENSE)). The data belongs to Fintraffic, HSL,
-Trafikverket, Samtrafiken, Entur, the MBTA, BART, SFMTA, 511.org and the operators and projects listed above,
+Trafikverket, Samtrafiken, Entur, the MBTA, the MTA, LA Metro, BART, SFMTA, 511.org and the operators and projects listed above,
 under their own licences.

@@ -1,0 +1,35 @@
+# Rebuilds the stopping patterns for New York and Los Angeles once a month.
+#
+# These networks are placed live from their vehicles; the patterns only change
+# with a new service plan, so a monthly rebuild keeps them current. No secrets.
+
+name: Stopping patterns
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'       # the first of every month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: New York subway
+        run: python3 tools/build_patterns.py nyc
+      - name: Los Angeles Metro
+        run: python3 tools/build_patterns.py la
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/nyc data/la
+          git diff --cached --quiet || git commit -m "Stopping patterns $(date -u +%F)"
+          git pull --rebase
+          git push

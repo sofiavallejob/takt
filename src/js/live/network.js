@@ -87,6 +87,7 @@ function getString(key, raw, codes, mayReshape) {
       name: raw.lineName || (letter ? (LINE_NAMES[letter] || `${letter} train`) : null),
       lc: raw.color || null, u: 0, ratio: 1, lastPluck: 0, vib: null, _el: null, users: 0,
       group: raw.groupName || groupOfCat(raw.cat),
+      top: !!raw.top,     // drawn over the rest (Los Angeles: rail over the buses)
     };
     net.strings.set(key, g);
     shapeString(g, codes);

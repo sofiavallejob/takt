@@ -8,6 +8,8 @@ shoreline, so the harbour and the bay read as water.
 Writes:
     data/bos-regions.json   Massachusetts towns around Boston (county subdivisions)
     data/sf-regions.json    Bay Area counties
+    data/nyc-regions.json   New York and New Jersey towns around New York City
+    data/la-regions.json    cities around Los Angeles
 
 Run by hand when the outlines need refreshing; they hardly ever change.
 """
@@ -18,12 +20,18 @@ OUT = os.path.join(os.path.dirname(__file__), '..', 'data')
 CB = 'https://www2.census.gov/geo/tiger/GENZ2023/shp/'
 
 JOBS = [
-    {'out': 'bos-regions.json', 'zip': 'cb_2023_25_cousub_500k.zip', 'state': '25',
+    {'out': 'bos-regions.json', 'zip': ['cb_2023_25_cousub_500k.zip'], 'state': '25',
      'box': (-71.40, 42.12, -70.80, 42.58),
      'source': 'US Census Bureau cartographic boundaries 2023, Massachusetts county subdivisions (public domain), cropped to Boston'},
-    {'out': 'sf-regions.json', 'zip': 'cb_2023_us_county_500k.zip', 'state': '06',
+    {'out': 'sf-regions.json', 'zip': ['cb_2023_us_county_500k.zip'], 'state': '06',
      'box': (-122.75, 37.15, -121.55, 38.25),
      'source': 'US Census Bureau cartographic boundaries 2023, California counties (public domain), cropped to the Bay Area'},
+    {'out': 'nyc-regions.json', 'zip': ['cb_2023_36_cousub_500k.zip', 'cb_2023_34_cousub_500k.zip'], 'state': ('36', '34'),
+     'box': (-74.30, 40.47, -73.68, 40.95),
+     'source': 'US Census Bureau cartographic boundaries 2023, New York and New Jersey county subdivisions (public domain), cropped to New York City'},
+    {'out': 'la-regions.json', 'zip': ['cb_2023_06_place_500k.zip'], 'state': '06',
+     'box': (-118.70, 33.68, -117.75, 34.36),
+     'source': 'US Census Bureau cartographic boundaries 2023, California places (public domain), cropped to Los Angeles'},
 ]
 
 
@@ -75,15 +83,16 @@ def thin(ring, km=0.08):
 
 def main():
     for job in JOBS:
-        print(f"{job['out']}: downloading {job['zip']}", file=sys.stderr)
-        z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(CB + job['zip']).read()))
-        stem = job['zip'][:-4]
-        recs = read_dbf(z.read(stem + '.dbf'))
-        shapes = read_shp(z.read(stem + '.shp'))
         x0, y0, x1, y1 = job['box']
-        rings = []
-        for rec, shape in zip(recs, shapes):
-            if rec.get('STATEFP') != job['state']:
+        states = job['state'] if isinstance(job['state'], tuple) else (job['state'],)
+        rings, pairs = [], []
+        for name in job['zip']:
+            print(f"{job['out']}: downloading {name}", file=sys.stderr)
+            z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(CB + name).read()))
+            stem = name[:-4]
+            pairs += zip(read_dbf(z.read(stem + '.dbf')), read_shp(z.read(stem + '.shp')))
+        for rec, shape in pairs:
+            if rec.get('STATEFP') not in states:
                 continue
             for ring in shape:
                 xs = [p[0] for p in ring]; ys = [p[1] for p in ring]

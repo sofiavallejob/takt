@@ -78,14 +78,16 @@ function fetchAnnouncements(dates, changeId, extra = '') {
 }
 
 /** Whole days of announcements. One answer is capped at about 26 MB, which a
- *  busy weekday passes, so the day is asked for in slices of the clock. The
+ *  busy weekday passes, so each day is asked for in slices of the clock. With
+ *  two days loaded (late evening, early morning) every day is cut, not only
+ *  the last, or the first slice would hold the whole of the other day. The
  *  change id to continue from is the oldest of the slices', so no change
  *  between them is lost (one seen twice does no harm). */
 async function fetchDays(dates) {
-  const cuts = ['09:00', '15:00'].map(t => new Date(`${dates[dates.length - 1]}T${t}:00`).toISOString());
-  const range = [`<LT name="AdvertisedTimeAtLocation" value="${cuts[0]}"/>`,
-    `<GTE name="AdvertisedTimeAtLocation" value="${cuts[0]}"/><LT name="AdvertisedTimeAtLocation" value="${cuts[1]}"/>`,
-    `<GTE name="AdvertisedTimeAtLocation" value="${cuts[1]}"/>`];
+  const cuts = dates.flatMap(d => ['09:00', '15:00'].map(t => new Date(`${d}T${t}:00`).toISOString()));
+  const lt = v => `<LT name="AdvertisedTimeAtLocation" value="${v}"/>`;
+  const gte = v => `<GTE name="AdvertisedTimeAtLocation" value="${v}"/>`;
+  const range = [lt(cuts[0]), ...cuts.slice(1).map((c, i) => gte(cuts[i]) + lt(c)), gte(cuts[cuts.length - 1])];
   const parts = await Promise.all(range.map(x => fetchAnnouncements(dates, '0', x)));
   const ids = parts.map(r => r.INFO?.LASTCHANGEID).filter(Boolean).map(BigInt);
   return {
