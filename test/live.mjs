@@ -1,10 +1,10 @@
-// End-to-end smoke test against the real live feeds. Serves the project,
+// End-to-end smoke test of live mode, against the real feeds. Serves the project,
 // drives it in headless Chromium and checks the things that are easy to break:
 // the module graph, both feeds, the strings, the views, both tunings, switching
 // networks, and that trains actually make sound over a minute of real time.
 //
-//   node test/smoke.mjs              # about 100 seconds
-//   node test/smoke.mjs --shots      # also writes screenshots to test/shots/
+//   node test/live.mjs              # about 100 seconds
+//   node test/live.mjs --shots      # also writes screenshots to test/shots/
 //
 // Requires network access to rata.digitraffic.fi and opendata.samtrafiken.se,
 // a timetable for today in data/sto/, and: npx playwright install chromium
@@ -165,6 +165,21 @@ try {
   await page.click('#ctry button[data-c="fi"]');
   await page.waitForFunction(() => window.__takt.active.key === 'fi', null, { timeout: 30000 });
   ok('back to Finland', await page.evaluate(() => window.__takt.state.S.lines.length > 30));
+
+  // The mode switch: over to a recorded day and back, without reloading.
+  await page.click('#modes [data-m="replay"]');
+  await page.waitForFunction(() => window.__takt.mode === 'replay' && window.__takt.state.CK, null, { timeout: 60000 });
+  await page.waitForTimeout(1500);
+  const r = await page.evaluate(() => ({
+    key: window.__takt.state.CK, lines: window.__takt.state.S.lines.length, hash: location.hash,
+    moving: window.__takt.state.moving.length, pause: !document.querySelector('#pause').offsetParent,
+  }));
+  ok('Live → Replay', r.lines > 100 && r.hash.startsWith('#' + r.key) && !r.pause, `${r.key}, ${r.lines} strings, ${r.moving} moving`);
+  await page.click('#modes [data-m="live"]');
+  await page.waitForFunction(() => window.__takt.mode === 'live', null, { timeout: 60000 });
+  await page.waitForTimeout(1500);
+  ok('Replay → Live', await page.evaluate(() =>
+    window.__takt.active.key === 'fi' && window.__takt.state.S.lines.length > 30 && !window.__takt.state.muted));
 
   ok('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } finally {

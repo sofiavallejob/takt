@@ -115,8 +115,10 @@ let label = null;
 export function showLabel(g, x, y) {
   const who = g.name ? `${g.name}, ${g.from} to ${g.to}` : `${g.from} to ${g.to}`;
   const cat = g.name ? '' : `${state.C.groups[g.cat]?.name || ''}, `;
+  // Replay strings carry the operators that ran on them.
+  const ops = g.opers && !state.C.byLine ? [...g.opers] : [];
   label = {
-    text: `${cat}${who}`,
+    text: `${cat}${who}${ops.length ? ` (${ops.join(', ')})` : ''}`,
     sub: `${Math.round(g.len)} km, ${describeTuning(g, state.T)}`,
     x, y, t: performance.now(),
   };

@@ -1,0 +1,30 @@
+{
+  "order": [
+    "at",
+    "ch",
+    "de",
+    "nl",
+    "mx"
+  ],
+  "names": {
+    "at": "Austria",
+    "ch": "Switzerland",
+    "de": "Germany",
+    "mx": "Mexico City",
+    "nl": "Netherlands"
+  },
+  "trains": {
+    "at": "6,387 trains/day",
+    "ch": "15,146 trains/day",
+    "de": "38,007 trains/day",
+    "mx": "20,520 trains/day",
+    "nl": "6,588 trains/day"
+  },
+  "files": {
+    "at": "data/replay/at.bin",
+    "ch": "data/replay/ch.bin",
+    "de": "data/replay/de.bin",
+    "mx": "data/replay/mx.bin",
+    "nl": "data/replay/nl.bin"
+  }
+}

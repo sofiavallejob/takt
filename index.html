@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Takt: rail networks as strings, live</title>
-<meta name="description" content="Rail networks as strings, live: Finland's trains and the Stockholm metro. Every route is tuned by its length; trains pluck the lines they cross and the stations they reach, as it happens.">
+<title>Takt: rail networks as strings</title>
+<meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Sweden and Norway, or replay a recorded day in Austria, Switzerland, Germany, the Netherlands and Mexico City.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🚆</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,11 +12,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="src/css/takt.css">
 </head>
-<body>
+<body data-mode="live">
 
 <div id="wrap">
   <div id="main">
-    <canvas id="c" aria-label="The rail network, live. Train dots play each line they cross."></canvas>
+    <canvas id="c" aria-label="The rail network. Train dots play each line they cross."></canvas>
 
     <div id="top">
       <div>
@@ -24,6 +24,7 @@
         <div id="clock" aria-hidden="true"></div>
         <div id="tcount"></div>
         <div id="tcountsub"></div>
+        <div id="daynote" data-only="replay"></div>
       </div>
       <div class="days">
         <div class="toprow">
@@ -36,9 +37,14 @@
               <path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8z"/>
             </svg>
           </button>
+          <div class="ctry" id="modes" role="group" aria-label="Live or replay">
+            <button data-m="live" aria-pressed="true" title="The trains where they are right now">Live</button>
+            <button data-m="replay" aria-pressed="false" title="A recorded day, with a clock you can pause and scrub">Replay</button>
+          </div>
           <div class="ctry" id="ctry" role="group" aria-label="Network"></div>
         </div>
-        <div class="ctry" id="views" role="group" aria-label="Map view"></div>
+        <div class="ctry" id="views" role="group" aria-label="Map view" data-only="live"></div>
+        <div id="daybtns" role="group" aria-label="Day" data-only="replay"></div>
       </div>
     </div>
 
@@ -50,7 +56,7 @@
         <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
       </div>
       <div class="ctl">
-        <button class="b icon" id="play" aria-pressed="false" aria-label="Mute" title="Mute">
+        <button class="b icon" id="play" aria-pressed="false" aria-label="Mute" title="Mute" data-only="live">
           <svg class="on" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>
           </svg>
@@ -58,6 +64,10 @@
             <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>
           </svg>
         </button>
+        <button class="b" id="pause" aria-label="Play" data-only="replay">▶</button>
+        <button class="b" data-speed="1" title="Slow" aria-pressed="false" data-only="replay">½×</button>
+        <button class="b" data-speed="3" title="Normal" aria-pressed="true" data-only="replay">1×</button>
+        <button class="b" data-speed="10" title="Fast" aria-pressed="false" data-only="replay">3×</button>
         <button class="b icon" id="bed" aria-pressed="true" title="Chord underneath" aria-label="Chord underneath">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6 1v10.3A3.5 3.5 0 1 0 8 14V5h5V1H6zm0 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
         </button>
@@ -85,11 +95,13 @@
       <h4>Playing</h4>
       <label>Density <input id="dens" type="range" min="0" max="1.2" step="0.05" value="0.8" aria-label="Sparse to dense"></label>
       <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.75"></label>
-      <div class="sub">Plays when a train</div>
-      <div class="seg" role="group" aria-label="Plays when a train">
-        <button class="b" data-plays="cross" aria-pressed="false" title="The line a train crosses is plucked">Crosses</button>
-        <button class="b" data-plays="arrive" aria-pressed="false" title="A train arriving at a station plucks its own line">Arrives</button>
-        <button class="b" data-plays="both" aria-pressed="true">Both</button>
+      <div data-only="live">
+        <div class="sub">Plays when a train</div>
+        <div class="seg" role="group" aria-label="Plays when a train">
+          <button class="b" data-plays="cross" aria-pressed="false" title="The line a train crosses is plucked">Crosses</button>
+          <button class="b" data-plays="arrive" aria-pressed="false" title="A train arriving at a station plucks its own line">Arrives</button>
+          <button class="b" data-plays="both" aria-pressed="true">Both</button>
+        </div>
       </div>
       <div class="toggle">City labels
         <button class="b" id="toglabels" aria-pressed="true">Show</button>
@@ -134,15 +146,25 @@
 <div id="start">
   <div>
     <h1>Takt</h1>
-    <p class="sub">Rail networks as strings, live</p>
-    <p>Every route is a string, tuned by its length. The trains on the map are
-      where they are right now, in Finland or on the Stockholm metro. When one
+    <p class="sub">Rail networks as strings</p>
+    <div class="ctry" id="startmodes" role="group" aria-label="Live or replay">
+      <button data-m="live" aria-pressed="true">Live</button>
+      <button data-m="replay" aria-pressed="false">Replay</button>
+    </div>
+    <p data-only="live">Every route is a string, tuned by its length. The trains on the map are
+      where they are right now, in Finland, Sweden or Norway. When one
       crosses another line or leaves it at a junction, that string sounds; when
       one reaches a station, its own line sounds softly. Longer routes play
       lower. The harmony moves on the hour, local time. Trains running late
       drag behind the beat and drift out of tune. Cancelled trains leave only
       a click.</p>
-    <button id="go" disabled>Loading live trains…</button>
+    <p data-only="replay">Every route is a string, tuned by its length. Replay plays back a
+      recorded day in Austria, Switzerland, Germany, the Netherlands or the Mexico City
+      metro, on a clock you can pause, speed up and scrub. When a train crosses
+      another line, that string sounds. Longer routes play lower. The harmony
+      moves every hour. On-time trains land on the beat and in tune. Late trains
+      drag behind and drift out of tune. Cancelled trains leave only a click.</p>
+    <button id="go" disabled>Loading…</button>
     <p id="starterr" role="status"></p>
     <p class="cred">© 2026 Sofia Vallejo Budziszewski · IEM Graz · <a href="#" id="credlink">Data sources and credits</a></p>
   </div>

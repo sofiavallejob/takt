@@ -1,5 +1,7 @@
-// Listening on and off, the view picker, the theme switch, the day bar, and
-// playing the network by hand with the pointer.
+// The controls both modes share: the country picker, the chord bed, the theme
+// switch, the Strings panel, the day bar, the clock, and playing the network
+// by hand with the pointer. Live adds mute and the views (here); replay adds
+// play/pause, speed, days and scrubbing (replay/mode.js).
 
 import { state, $ } from '../state.js';
 import { toggleTheme } from '../theme.js';
@@ -9,28 +11,33 @@ import { initSidebarSearch } from './sidebar.js';
 import { VIEWS } from '../config.js';
 import { applyFx } from '../audio/engine.js';
 
-/** Sound on or off. Muting fades everything out, the chord bed and the echoes
- *  too; the trains keep moving, since there is no pausing real time. */
+/** Live: sound on or off. Muting fades everything out, the chord bed and the
+ *  echoes too; the trains keep moving, since there is no pausing real time. */
 export function setListening(on) {
   state.playing = on;
+  state.muted = !on;
   $('play').setAttribute('aria-pressed', String(!on));
   $('play').setAttribute('aria-label', on ? 'Mute' : 'Unmute');
   $('play').title = on ? 'Mute' : 'Unmute';
   applyFx();
 }
 
-/** The views of the current country; hidden when it only has one. */
+/** Live: the views of the current country; hidden when it only has one. */
 export function renderViews(keys, setView) {
   $('views').innerHTML = keys.map(k => `<button data-v="${k}">${VIEWS[k].name}</button>`).join('');
   $('views').hidden = keys.length < 2;
   document.querySelectorAll('#views button').forEach(b => { b.onclick = () => setView(b.dataset.v); });
 }
 
-export function initControls(countries, pickCountry) {
-  // --- countries ------------------------------------------------------------
+/** The country picker. Each mode has its own countries and redraws it on entry. */
+export function renderCountries(countries, pickCountry) {
   $('ctry').innerHTML = countries.map(([k, name]) => `<button data-c="${k}">${name}</button>`).join('');
   document.querySelectorAll('#ctry button').forEach(b => { b.onclick = () => pickCountry(b.dataset.c); });
+}
 
+/** Wired once. `onSpace` is the current mode's main button: mute live,
+ *  play/pause in replay. */
+export function initControls(onSpace) {
   // --- transport ------------------------------------------------------------
   $('play').onclick = () => setListening(!state.playing);
   $('bed').onclick = () => {
@@ -38,7 +45,7 @@ export function initControls(countries, pickCountry) {
     $('bed').setAttribute('aria-pressed', String(state.bedOn));
   };
   addEventListener('keydown', e => {
-    if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); $('play').click(); }
+    if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); onSpace(); }
   });
 
   // --- theme ----------------------------------------------------------------
@@ -85,31 +92,34 @@ export function initControls(countries, pickCountry) {
   cv.addEventListener('pointerleave', release);
 }
 
-/** The day bar: how many trains run across today, with now marked on it. */
-export function drawProfile(profile) {
+/** The day bar: how many trains run across the day, with now marked on it. */
+export function drawProfile(profile, label = 'Trains running today') {
   const max = Math.max(1, ...profile), n = profile.length;
   let d = `M0 40`;
   profile.forEach((v, i) => { d += ` L${(i + 0.5) / n * 1000} ${40 - (v / max) * 36}`; });
   d += ' L1000 40 Z';
   $('profile').innerHTML =
     `<svg viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
-  $('bar').setAttribute('aria-label', `Trains running today, up to ${max} at once`);
+  $('bar').setAttribute('aria-label', `${label}, up to ${max} at once`);
 }
 
-let lastSec = -1;
+let lastKey = -1, lastMin = -1;
+/** The clock, the train count and the day bar. Live updates every second
+ *  (`status` is the feed's health); replay every simulated minute. */
 export function updateClock(updateNotes, status) {
-  const sec = Math.floor(state.T * 60);
-  if (sec === lastSec) return;
-  lastSec = sec;
+  const key = state.mode === 'live' ? Math.floor(state.T * 60) : Math.floor(state.T);
+  if (key === lastKey) return;
+  lastKey = key;
   const m = Math.floor(state.T);
   const s = String((m / 60) | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
   $('clock').innerHTML = [...s].map(ch => `<span${ch === ':' ? ' class="c"' : ''}>${ch}</span>`).join('');
   $('tcount').textContent = `${state.moving.length.toLocaleString()} ${state.C.noun || 'trains'} moving`;
-  $('tcountsub').textContent = status();
+  if (status) $('tcountsub').textContent = status();
+  if (state.mode === 'replay') $('bar').setAttribute('aria-valuetext', s);
   const p = state.T / 1440 * 100;
   $('bar').querySelector('.knob').style.left = p + '%';
   $('bar').querySelector('.fill').style.width = p + '%';
-  if (sec % 60 === 0) updateNotes();
+  if (m !== lastMin) { lastMin = m; updateNotes(); }
 }
 
 export function trimTrail(now) {

@@ -206,7 +206,7 @@ export function click(when, pan, amp = 1) {
 
 /** Volume, or silence while muted: the map and the clock keep running. */
 export function setVolume(v) {
-  if (master) master.gain.setTargetAtTime(sval(state.playing ? v : 0), AC.currentTime, 0.05);
+  if (master) master.gain.setTargetAtTime(sval(state.muted ? 0 : v), AC.currentTime, 0.05);
 }
 
 export function applyFx() {

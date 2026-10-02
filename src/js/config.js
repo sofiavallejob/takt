@@ -1,7 +1,8 @@
-// Static configuration: nothing here depends on the live data.
+// Static configuration: nothing here depends on the loaded data.
 
 /** Train categories. Colours and dot weights are fixed; `types` are the
- *  Digitraffic train type codes that fall into each one. */
+ *  Digitraffic train type codes that fall into each one. Replay packs name
+ *  their own categories (`C.cats`) in the same five slots. */
 export const CATS = [
   { name: 'Pendolino', col: '#d62839', w: 1.9, types: ['S'] },
   { name: 'InterCity', col: '#ee8a00', w: 1.7, types: ['IC'] },
@@ -10,7 +11,7 @@ export const CATS = [
   { name: 'Commuter', col: '#2b7bd6', w: 1.1, types: ['HL', 'HV'] },
 ];
 
-/** The harmony moves one step every real hour. `pcs` are pitch classes:
+/** The harmony moves one step every hour of the clock (real, or replayed). `pcs` are pitch classes:
  *  root, third, fifth, then two colours. */
 export const CHORDS = [
   { name: 'D major', root: 50, pcs: [2, 6, 9, 4, 11] },
@@ -139,7 +140,66 @@ export const CREDITS_STO = `<h3>Stockholm metro and trams, live</h3><ul>
   <li>Municipal outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> SWE ADM2, from OpenStreetMap (ODbL)</li>
   <li>Lines are drawn station to station, not along the tunnels.</li></ul>`;
 
-export const CREDITS_GENERAL = `<h3>Credits</h3>
+/** Mexico City ships one geometry per direction, so the raw feed has 24
+ *  polylines for 12 lines. Each entry folds a direction pair into a single
+ *  string: `rep` is the polyline the string is drawn and plucked on, `clip`
+ *  trims it to one direction where the feed stored an out-and-back loop.
+ *  Terminals are the official ones — the feed's own `from`/`to` are whatever
+ *  stops the longest surviving trip happened to reach. */
+export const MX_LINES = [
+  { id: '1',  name: 'Línea 1',  col: '#F04E98', from: 'Observatorio',   to: 'Pantitlán',            geoms: [0, 1],   rep: 0 },
+  { id: '2',  name: 'Línea 2',  col: '#005EB8', from: 'Cuatro Caminos', to: 'Tasqueña',             geoms: [4, 5],   rep: 4 },
+  { id: '3',  name: 'Línea 3',  col: '#AF9800', from: 'Indios Verdes',  to: 'Universidad',          geoms: [6, 7],   rep: 6 },
+  { id: '4',  name: 'Línea 4',  col: '#6BBBAE', from: 'Martín Carrera', to: 'Santa Anita',          geoms: [8, 9],   rep: 9 },
+  { id: '5',  name: 'Línea 5',  col: '#FFD100', from: 'Politécnico',    to: 'Pantitlán',            geoms: [10, 11], rep: 10 },
+  { id: '6',  name: 'Línea 6',  col: '#DA291C', from: 'El Rosario',     to: 'Martín Carrera',       geoms: [12, 13], rep: 12 },
+  { id: '7',  name: 'Línea 7',  col: '#E87722', from: 'El Rosario',     to: 'Barranca del Muerto',  geoms: [14, 15], rep: 14 },
+  { id: '8',  name: 'Línea 8',  col: '#009A44', from: 'Garibaldi',      to: 'Constitución de 1917', geoms: [16, 17], rep: 16 },
+  { id: '9',  name: 'Línea 9',  col: '#512F2E', from: 'Tacubaya',       to: 'Pantitlán',            geoms: [18, 19], rep: 19 },
+  { id: '12', name: 'Línea 12', col: '#B0A32A', from: 'Mixcoac',        to: 'Tláhuac',              geoms: [2, 3],   rep: 3, clip: [0, 46] },
+  { id: 'A',  name: 'Línea A',  col: '#981D97', from: 'Pantitlán',      to: 'La Paz',               geoms: [20, 21], rep: 20 },
+  { id: 'B',  name: 'Línea B',  col: '#B1B3B3', from: 'Buenavista',     to: 'Ciudad Azteca',        geoms: [22, 23], rep: 22 },
+];
+
+/** Replay: per-country data credits for the recorded days. */
+export const CREDITS_REPLAY = {
+  at: `<h3>Austria, recorded</h3><ul>
+    <li>Timetable: Mobilitätsverbünde Österreich national GTFS feed (CC BY 4.0)</li>
+    <li>Delays: ÖBB-Infrastruktur AG Zugfahrten (CC BY 3.0 AT)</li>
+    <li>Track network: ÖBB GeoNetz</li>
+    <li>Borders: <a href="https://github.com/ginseng666/GeoJSON-TopoJSON-Austria">ginseng666/GeoJSON-TopoJSON-Austria</a></li></ul>`,
+  ch: `<h3>Switzerland, recorded</h3><ul>
+    <li>Timetable: geOps GTFS train feed (geops.ch)</li>
+    <li>Actual times: opentransportdata.swiss Ist-Daten archive</li>
+    <li>Track network: Federal Office of Transport Schienennetz (data.geo.admin.ch)</li>
+    <li>Borders: <a href="https://github.com/codeforgermany/click_that_hood">codeforgermany/click_that_hood</a></li></ul>`,
+  de: `<h3>Germany, recorded</h3><ul>
+    <li>Delays: <a href="https://github.com/piebro/deutsche-bahn-data">piebro/deutsche-bahn-data</a> (CC BY 4.0, from the DB Timetable API)</li>
+    <li>Track network: DB InfraGO Infrastrukturdaten (GeoZG)</li>
+    <li>Station coordinates: Trainline open station list</li>
+    <li>Borders: <a href="https://github.com/isellsoap/deutschlandGeoJSON">isellsoap/deutschlandGeoJSON</a></li></ul>`,
+  nl: `<h3>Netherlands, recorded</h3><ul>
+    <li>Timetable and punctuality: <a href="https://www.rijdendetreinen.nl/open-data">Rijden de Treinen</a> service archive (CC BY 4.0)</li>
+    <li>Station coordinates: Rijden de Treinen station list</li>
+    <li>Track network: OpenStreetMap running lines, via the Overpass API (ODbL)</li>
+    <li>Borders: <a href="https://cartomap.github.io/nl/">cartomap.github.io/nl</a> province outlines (CBS)</li></ul>`,
+  mx: `<h3>Mexico City metro, recorded</h3><ul>
+    <li>Track geometry: OpenStreetMap (STC Metro relations), via the Overpass API</li>
+    <li>Station names: OpenStreetMap</li>
+    <li>Timetable: STC Metro GTFS from datos.cdmx.gob.mx (CC BY, via SEMOVI)</li>
+    <li>The feed carries no service for Línea 12, so it has no trains — the string is still there to play by hand.</li></ul>`,
+};
+
+export const CREDITS_GENERAL = `<h3>Sonification</h3>
+  <p>Each route is a string tuned by its length. Trains pluck the lines they cross;
+  the note you hear belongs to the line being crossed, not to the train's own line.
+  In <em>chord</em> tuning the strings are snapped to a chord that moves every hour
+  (D, Bm, G, A). In <em>harmonic</em> tuning each string sounds at the frequency its
+  length implies, so the network tunes itself. Late trains drag behind the beat and
+  go out of tune on a continuous curve; cancelled trains leave only a click.
+  Inspired by Alexander Chen's <a href="http://mta.me">Conductor</a> and Joshua Wolk's
+  <a href="https://www.trainjazz.com">Train Jazz</a>.</p>
+  <h3>Credits</h3>
   <p>Built by Sofia Vallejo Budziszewski as part of doctoral research at the
   <a href="https://iem.kug.ac.at">Institute of Electronic Music and Acoustics (IEM)</a>,
   University of Music and Performing Arts Graz.</p>`;

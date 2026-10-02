@@ -2,16 +2,22 @@
 // the imports acyclic: everything reads `state`, nothing reads everything else.
 
 export const state = {
+  mode: 'live',    // 'live' (the trains right now) | 'replay' (a recorded day)
+
   // data
   C: null,         // network record: groups, outlines, labels, notes
-  S: null,         // { lines, trains, peak, profile }
+  S: null,         // { lines, trains, peak, profile } (+ buckets in replay)
   B: null,         // map bounds { x0, y0, x1, y1 }
-  viewKey: 'fi',   // 'fi' | 'hel'
+  viewKey: 'fi',   // live: the map view ('fi', 'hel', 'sto', ...)
+  CK: null,        // replay: the country key ('at', 'ch', ...)
+  day: null,       // replay: the day key within that country
 
   // clock
-  N: 0,            // minutes since the page started: the simulation's time
-  T: 0,            // minutes since midnight in Helsinki: the chord and the clock
-  playing: false,  // listening (the map runs either way)
+  N: 0,            // the simulation's time in minutes (live: since the network loaded; replay: = T)
+  T: 0,            // minutes since midnight, local time: the chord and the clock
+  playing: false,  // live: listening; replay: the clock is running
+  muted: false,    // live only: sound off while the trains keep moving
+  speed: 3,        // replay: simulated minutes per real second
 
   // per-frame
   moving: [],
