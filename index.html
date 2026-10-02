@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Takt: rail networks as strings, live</title>
+<meta name="description" content="Rail networks as strings, live: Finland's trains and the Stockholm metro. Every route is tuned by its length; trains pluck the lines they cross and the stations they reach, as it happens.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🚆</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/css/takt.css">
+</head>
+<body>
+
+<div id="wrap">
+  <div id="main">
+    <canvas id="c" aria-label="The rail network, live. Train dots play each line they cross."></canvas>
+
+    <div id="top">
+      <div>
+        <h1 id="title">Finland</h1>
+        <div id="clock" aria-hidden="true"></div>
+        <div id="tcount"></div>
+        <div id="tcountsub"></div>
+        <div id="daynote"></div>
+      </div>
+      <div class="days">
+        <div class="toprow">
+          <button id="togtheme" class="b" aria-pressed="false" aria-label="Switch to dark mode" title="Light / dark">
+            <svg class="sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="12" cy="12" r="4.2"/>
+              <path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/>
+            </svg>
+            <svg class="moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+              <path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8z"/>
+            </svg>
+          </button>
+          <div class="ctry" id="ctry" role="group" aria-label="Network"></div>
+        </div>
+        <div class="ctry" id="views" role="group" aria-label="Map view"></div>
+      </div>
+    </div>
+
+    <div id="bottom">
+      <div id="key"></div>
+      <div id="bar" role="img" aria-label="Trains running today">
+        <div id="profile"></div>
+        <div class="track"></div><div class="fill"></div><div class="knob"></div>
+        <div class="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+      </div>
+      <div class="ctl">
+        <button class="b" id="play" aria-label="Listen">▶</button>
+        <button class="b icon" id="bed" aria-pressed="true" title="Chord underneath" aria-label="Chord underneath">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6 1v10.3A3.5 3.5 0 1 0 8 14V5h5V1H6zm0 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>
+        </button>
+        <span class="gap"></span>
+        <span id="hint">Drag across the map to play it by hand</span>
+        <button class="b" id="togside" aria-pressed="false">Strings</button>
+        <button class="b" id="togadv" aria-pressed="false">Advanced</button>
+        <a href="#" id="credlink2" style="font-size:13px;color:var(--muted)">Credits</a>
+      </div>
+    </div>
+
+    <div id="adv" role="dialog" aria-label="Advanced settings">
+      <header>
+        <h3>Advanced</h3>
+        <button class="b" id="advclose" style="font-size:11px;padding:2px 8px">Close</button>
+      </header>
+
+      <h4>Tuning</h4>
+      <div class="seg" role="group" aria-label="Tuning">
+        <button class="b" data-tuning="chord" aria-pressed="true">Chord</button>
+        <button class="b" data-tuning="harmonic" aria-pressed="false">Harmonic</button>
+      </div>
+      <p class="note" id="tunenote"></p>
+
+      <h4>Playing</h4>
+      <label>Density <input id="dens" type="range" min="0" max="1.2" step="0.05" value="0.8" aria-label="Sparse to dense"></label>
+      <label>Volume <input id="vol" type="range" min="0" max="1" step="0.01" value="0.75"></label>
+      <div class="toggle">Arrivals play their own line
+        <button class="b" id="togarr" aria-pressed="true">On</button>
+      </div>
+      <div class="toggle">City labels
+        <button class="b" id="toglabels" aria-pressed="true">Show</button>
+      </div>
+
+      <h4>Room</h4>
+      <label>Reverb <input type="range" id="fxVerb" min="0" max="1" step="0.05" value="0.32"></label>
+      <label>Echo level <input type="range" id="fxEcho" min="0" max="0.8" step="0.05" value="0.28"></label>
+      <label>Echo feedback <input type="range" id="fxFb" min="0" max="0.7" step="0.05" value="0.32"></label>
+
+      <h4>Voice</h4>
+      <label>Brightness <input type="range" id="fxBright" min="200" max="8000" step="100" value="5200"></label>
+      <label>Body warmth <input type="range" id="fxBody" min="0" max="10" step="0.5" value="5"></label>
+      <label>Bed volume <input type="range" id="fxBed" min="0" max="1" step="0.05" value="1"></label>
+      <label>Late detuning <input type="range" id="fxSour" min="0" max="200" step="5" value="100"></label>
+
+      <div class="row"><button class="b" id="advreset">Reset all</button></div>
+    </div>
+  </div>
+
+  <div id="side" class="closed">
+    <div id="sidehead">
+      <h2>Strings</h2>
+      <span id="scount"></span>
+      <span class="gap"></span>
+      <button class="b" id="unsolo" style="display:none">Unsolo</button>
+      <button class="b" id="closeside">Close</button>
+    </div>
+    <div id="sidesearch"><input id="ssearch" type="search" placeholder="Search lines…" aria-label="Search lines"></div>
+    <div id="slist"></div>
+  </div>
+</div>
+
+<div id="start">
+  <div>
+    <h1>Takt</h1>
+    <p class="sub">Rail networks as strings, live</p>
+    <p>Every route is a string, tuned by its length. The trains on the map are
+      where they are right now, in Finland or on the Stockholm metro. When one
+      crosses another line or leaves it at a junction, that string sounds; when
+      one reaches a station, its own line sounds softly. Longer routes play
+      lower. The harmony moves on the hour, local time. Trains running late
+      drag behind the beat and drift out of tune. Cancelled trains leave only
+      a click.</p>
+    <button id="go" disabled>Loading live trains…</button>
+    <p id="starterr" role="status"></p>
+    <p class="cred"><a href="#" id="credlink">Data sources and credits</a></p>
+  </div>
+</div>
+
+<div id="credits" hidden>
+  <div>
+    <h1>Data sources</h1>
+    <div id="credtext"></div>
+    <button class="b" id="credclose">Back</button>
+  </div>
+</div>
+
+<script type="module" src="src/js/main.js"></script>
+</body>
+</html>
