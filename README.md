@@ -12,7 +12,7 @@ Takt has two modes, switched with **Live / Static** at the top of the page:
 
 | Mode | Networks | What you hear |
 | --- | --- | --- |
-| **Live** | **Finland**, **Norway**, **Sweden**; the **Helsinki** and **Stockholm** metros and trams; in the **United States**, the **Boston** and **New York** subways, **Los Angeles** Metro Rail and buses, and **San Francisco**'s BART, Muni Metro, streetcar and cable cars | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
+| **Live** | **Finland**, **Norway**, **Sweden**; the **Helsinki**, **Oslo** and **Stockholm** metros and trams; **Vienna**'s U-Bahn and trams (to the timetable); in the **United States**, the **Boston** and **New York** subways, **Los Angeles** Metro Rail and buses, and **San Francisco**'s BART, Muni Metro, streetcar and cable cars | The trains where they are right now, from the operators' open live feeds. No recording and no replay: at four in the morning it goes almost silent because the network does. |
 | **Static** | **Austria**, **Germany**, the **Mexico City metro**, the **Netherlands**, **Switzerland** | A recorded day with a real timetable behind it, and real punctuality behind all but Mexico City. The clock can be paused, sped up and scrubbed; some countries have a second, disrupted day. |
 
 **▶ [sofiavallejob.github.io/takt](https://sofiavallejob.github.io/takt/)**
@@ -40,7 +40,12 @@ remembers where each mode was.
   say clearly what is missing, and pick up again on its own when the feed
   comes back.
 * New networks: Buenos Aires, Chicago, London, the Netherlands, Paris, Seoul,
-  Switzerland and Sydney; the Oslo metro and trams (and perhaps buses).
+  Switzerland and Sydney.
+* Vienna live: Wiener Linien's live times cannot be read by a web page (no
+  CORS), so Vienna plays its timetable for now; a small relay (a free
+  Cloudflare Worker, say) would make it live.
+* Oslo's buses: Ruter shares no bus positions, and a day of bus journeys from
+  Entur is about a gigabyte.
 * Boston's commuter rail, the LIRR and Metro-North, which run to timetables and
   so can be late.
 * New York's buses: the MTA's bus feed needs a key and cannot be read by a web
@@ -107,6 +112,61 @@ button.
 
 ---
 
+## OSC out: play the trains with your own instruments
+
+Every note Takt plays can also go out as **OSC** (Open Sound Control), live or
+static, so Pure Data, SuperCollider, Max, TouchDesigner, a DAW or anything else
+can play the trains its own way.
+
+A web page cannot send UDP, so Takt sends OSC over a WebSocket to your own
+computer, and a small bridge passes it on as ordinary UDP OSC:
+
+```
+Takt (browser) ──WebSocket──▶ ws://localhost:8080 ──bridge──▶ udp 127.0.0.1:9000 ──▶ your patch
+```
+
+1. Start the bridge (needs only [Node](https://nodejs.org), no packages):
+   ```sh
+   node tools/osc-bridge.mjs                          # ws 8080 -> udp 9000
+   node tools/osc-bridge.mjs --to 57120               # to SuperCollider
+   node tools/osc-bridge.mjs --to 9000 --to 7400      # to two programs at once
+   ```
+2. In Takt: **Advanced → Output**, port `8080`, **Connect**. The light turns
+   green when it is sending. **Browser sound** turns the page's own synth off,
+   so only your patch is heard. Both are remembered.
+3. Software that reads OSC over WebSocket itself (TouchDesigner's WebSocket DAT,
+   Max's `node.script`, osc.js) can skip the bridge and listen on the port directly.
+
+### Messages
+
+| Address | When | Arguments |
+| --- | --- | --- |
+| `/takt/pluck` | a string sounds | `f` frequency (Hz) · `f` MIDI note (with cents as a fraction) · `f` pan (−1 left … 1 right) · `f` loudness (0–1) · `f` minutes late · `f` where on the string it was plucked (0–1) · `s` kind: `cross`, `junction`, `arrive` or `hand` · `s` line name |
+| `/takt/click` | a cancelled train | `f` pan · `s` line name |
+| `/takt/hour` | the chord changes on the hour | `f` root (MIDI) · `s` chord name |
+| `/takt/state` | about once a second | `f` trains moving · `f` share running late · `f` share cancelled · `f` where the traffic leans (−1 … 1) · `f` clock (minutes since midnight) · `s` network · `s` mode (`live` or `static`) |
+
+Messages are sent at the moment each note sounds, on the same beat (late trains
+drag behind it). Expect a few milliseconds of jitter: fine for playing, not
+sample-accurate. Chrome and Firefox allow the published site to connect to
+`localhost`; Safari may not, and there a local copy (`npm start`) always works.
+
+### The Pure Data patch
+
+`pd/takt.pd` (Pd vanilla 0.47 or newer) listens on UDP port 9000, the bridge's
+default. Open it with the bridge running and Takt connected:
+
+* **notes** play on 16 voices (`pd/takt-voice.pd`): a fundamental and a soft
+  octave through a gentle low-pass, plucked, panned where the train is, and
+  detuned by 1.5 cents for every minute the train is late (up to 50);
+* **cancelled trains** are short bursts of filtered noise;
+* **the hour** rings a low tone on the new chord's root;
+* a **stereo echo** under everything, a **volume** box, and the size of the
+  network and its lateness shown as numbers, ready to patch into anything.
+
+It is a starting point: every message arrives already unpacked, so swapping the
+voice for your own synth is one object.
+
 ## Live: the data, and what is made of it
 
 Fintraffic's [digitraffic.fi](https://www.digitraffic.fi/en/railway-traffic/)
@@ -141,7 +201,7 @@ estimate until then.
   background, whatever the page does.)
 
 The clock and the hourly chord follow local time where the trains are, so
-Stockholm and Oslo run an hour behind Finland, Boston and New York seven hours
+Vienna, Stockholm and Oslo run an hour behind Finland, Boston and New York seven hours
 behind it, and Los Angeles and San Francisco ten.
 
 ### Boston
@@ -155,6 +215,26 @@ its vehicle's pattern, timed from where the vehicle is at the line's typical
 speed, with its GPS fix on top. One string per branch (the Red Line is
 Alewife–Ashmont and Alewife–Braintree); short turns sound on their line's main
 string. Nothing is ever late, so the key leaves the late and cancelled marks out.
+
+### Oslo
+
+`live/ruter.js` plays Ruter's five metro (T-bane) lines and six tram lines from
+Entur's journey planner, as Norway's trains do. A whole day with every live
+field is over Entur's size limit, so the day is read line by line with planned
+times only; then every 30 seconds the journeys running now are asked again
+with expected and actual times, in one request. Ruter shares no vehicle
+positions, so trains are placed from those times. Late means 3 minutes.
+It is a view of Norway: **Norway → Oslo metro & tram**, or `#oslm`.
+
+### Vienna
+
+`live/vie.js` plays Wiener Linien's U-Bahn and trams (28 tram lines and U1 to
+U6, as they run that day) to the **timetable**: Wiener Linien publishes live
+departures, but its API sends no CORS header, so a web page may not read it.
+The day's timetable is cut from Wiener Linien's open GTFS by
+`tools/build_vienna.py` into `data/vie/`, once a day by
+`.github/workflows/vienna.yml` (no secrets). Nothing is late or cancelled, and
+the status line says *Running to the timetable*. `#vie` opens it.
 
 ### New York and Los Angeles
 
@@ -308,7 +388,7 @@ timetable for today in `data/sto/`; it ends by switching to static and back.
 
 ```
 index.html              markup for both modes; [data-only] marks what belongs to one
-assets/                 the logo (dark and light versions), the tab icons and the home-screen icon
+assets/                 the logo (white for the dark theme, dark for the light one), the tab icons and the home-screen icon
 src/css/takt.css        all styling; colour tokens are written by theme.js
 src/js/
   main.js               boot, the Live / Static switch, the frame loop
@@ -325,6 +405,8 @@ src/js/
     fi.js digitraffic.js    Finland
     se.js no.js         Sweden (Trafikverket), Norway (Entur)
     rail.js             routing expresses through stations they pass (Sweden, Norway)
+    ruter.js            Oslo metro and trams: Entur journey planner
+    vie.js              Vienna U-Bahn and trams, to the timetable
     sto.js gtfsrt.js    Stockholm: daily timetable plus GTFS Realtime
     bos.js              Boston subway: MBTA V3 API, stopping patterns plus vehicles
     sf.js               San Francisco: daily timetable plus 511 GTFS Realtime
@@ -342,6 +424,8 @@ src/js/
   audio/
     engine.js           the sampler, the effects chain, distortion, the limiter
     tuning.js           length → pitch, in both tunings
+    osc.js              OSC out over a WebSocket
+    unlock.js           getting sound out of phones: start on the tap, ignore the silent switch, recover after calls
     bed.js              the held chord under everything
   ui/
     controls.js         shared controls: countries, mute, bed, day bar, clock, playing by hand
@@ -350,18 +434,26 @@ src/js/
     legend.js           the key under the map
     credits.js          data sources
     colour.js           a line's colour from its pitch
+    output.js           the Output section: browser sound on/off, OSC port and connect
 data/
   *-regions.json        live outlines (geoBoundaries, ODbL)
   sto/ hel/ sf/         live timetables, one file per day, rebuilt daily
   nyc/ la/              stopping patterns, rebuilt monthly
+  vie/                  Vienna's timetable, one file per day, rebuilt daily
   replay/index.json     static manifest: order, names, file paths
   replay/*.bin          one gzipped JSON pack per recorded network
+pd/
+  takt.pd               Pure Data patch: the trains as OSC, played on a small synth
+  takt-voice.pd         one voice of it
 tools/
+  osc-bridge.mjs        WebSocket to UDP OSC, for the patch and other software
   build_sto.py build_hel.py build_sf.py    cut the daily timetables
   build_patterns.py     stopping patterns for New York and Los Angeles
+  build_vienna.py       Vienna's U-Bahn and tram timetable, from Wiener Linien's GTFS
+  build_regions.py      outlines for Oslo and Vienna, from geoBoundaries
   build_us_regions.py   US outlines (towns, counties and cities around each US network)
   fetch_nl.sh build_nl.py track.py    rebuild the Dutch static pack
-.github/workflows/      the daily Stockholm, Helsinki and San Francisco builds; monthly patterns
+.github/workflows/      the daily Stockholm, Helsinki, San Francisco and Vienna builds; monthly patterns
 test/replay.mjs         static smoke test (offline)
 test/live.mjs           live smoke test (real feeds)
 archive/
@@ -385,8 +477,9 @@ affecting the site.
 | **▶ ⏸ ½× 1× 3×** (static) | Play / pause and speed. |
 | **Space** | Mute (live) or play / pause (static) |
 | **Day bar** | How many trains run across the day, and where now is on it. In static, drag it to scrub; ← → step 15 minutes. |
-| **Countries** | Live: Finland, Norway, Sweden, United States, with views under each (Helsinki, Helsinki metro & tram; Oslo region; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Static: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
+| **Countries** | Live: Austria, Finland, Norway, Sweden, United States, with views under each (Vienna; Helsinki, Helsinki metro & tram; Oslo region, Oslo metro & tram; Mälardalen, Skåne, Stockholm metro & tram; Boston, Los Angeles, New York, San Francisco, Bay Area). Static: Austria, Germany, Mexico City, the Netherlands, Switzerland, with an ordinary and a disrupted day where there is one. |
 | **Tuning fork** | The bed chord on/off |
+| **Tap for sound** | Appears when the browser has paused the sound (after a call, the lock screen or switching apps on a phone); one tap brings it back. On iPhone Takt plays as media, so the silent switch does not mute it. |
 | **Corners** (or **F**) | Full screen on and off. Hidden where a browser cannot show a page full screen (Safari on iPhone). |
 | **Sun / moon** | Light or dark. Your choice is remembered; without one, it follows the system. |
 | **Strings** | Every line, grouped (by category live, by operator in static). Click one to solo it. A group's rows are built the first time it opens. |
@@ -401,6 +494,8 @@ affecting the site.
 | Finland: trains, timetables, actual and estimated times, cancellations, GPS, stations | Fintraffic, [digitraffic.fi](https://www.digitraffic.fi/en/railway-traffic/) (CC BY 4.0) |
 | Sweden's trains, live | [Trafikverket open API](https://data.trafikverket.se) |
 | Norway's trains, live | [Entur](https://developer.entur.org) journey planner and vehicle positions, no key (NLOD) |
+| Oslo metro and trams, live | Ruter's times via [Entur](https://developer.entur.org)'s journey planner (NLOD); outlines from geoBoundaries NOR ADM2 (CC BY 4.0) |
+| Vienna U-Bahn and trams, timetable | [Wiener Linien GTFS](https://www.data.gv.at/katalog/dataset/wiener-linien-fahrplandaten-gtfs-wien) (CC BY 4.0); outlines from geoBoundaries AUT ADM3 (CC BY-SA 2.0) |
 | Helsinki metro and trams, live | HSL high-frequency positioning (HFP, MQTT over WebSocket), no key (CC BY 4.0) |
 | Helsinki timetable | [HSL GTFS](https://www.hsl.fi/en/hsl/open-data), cut daily by `tools/build_hel.py` (CC BY 4.0) |
 | Stockholm metro, live and timetable | GTFS Sweden 3 Realtime and static, Samtrafiken via Trafiklab (CC0) |

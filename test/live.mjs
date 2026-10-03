@@ -151,7 +151,7 @@ try {
   // Helsinki metro and trams (HSL's HFP stream), Norway (Entur), the Boston
   // and New York subways, Los Angeles Metro (WebSocket) and San Francisco
   // (511.org; two of its 60 hourly requests).
-  for (const [view, name, min] of [['hsl', 'Helsinki metro & tram', 10], ['no', 'Norway', 40], ['bos', 'Boston subway', 8], ['nyc', 'New York subway', 20], ['la', 'Los Angeles Metro', 100], ['sf', 'San Francisco', 14]]) {
+  for (const [view, name, min] of [['hsl', 'Helsinki metro & tram', 10], ['no', 'Norway', 40], ['oslm', 'Oslo metro & tram', 8], ['vie', 'Vienna', 20], ['bos', 'Boston subway', 8], ['nyc', 'New York subway', 20], ['la', 'Los Angeles Metro', 100], ['sf', 'San Francisco', 14]]) {
     await page.evaluate(v => window.__takt.goView(v), view);
     await page.waitForFunction(v => window.__takt.state.viewKey === v, view, { timeout: 90000 });
     await page.waitForTimeout(20000);

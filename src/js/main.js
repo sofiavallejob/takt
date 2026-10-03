@@ -19,6 +19,9 @@ import { updateSidebarNotes } from './ui/sidebar.js';
 import { live } from './live/mode.js';
 import { replay } from './replay/mode.js';
 import { track } from './stats.js';
+import { initOutput } from './ui/output.js';
+import { oscState } from './audio/osc.js';
+import { unlockAudio, watchAudio } from './audio/unlock.js';
 
 const MODES = { live, replay };
 let mode = live, changing = false;
@@ -68,6 +71,7 @@ function advance(ts, visible) {
     mode.step(dt);
     hourNote();
     updateBed(now);
+    oscState(now);
     if (visible) {
       draw(now);
       updateClock(updateSidebarNotes, mode.status);
@@ -107,6 +111,7 @@ async function start(hash) {
 
   initCanvas();
   initAdvanced();
+  initOutput();
   initControls(() => mode.space());
   document.querySelectorAll('#modes [data-m]').forEach(b => { b.onclick = () => setMode(b.dataset.m); });
   track(`start/${mode.label.toLowerCase()}`, `Start listening (${mode.label})`);
@@ -119,6 +124,7 @@ async function start(hash) {
   // A browser that is slow to hand over the audio device must not hold the
   // map hostage: it runs either way, and the grid is re-zeroed once sound starts.
   AC.resume().then(resetGrid, err => console.warn('audio did not start', err));
+  watchAudio();
 
   onThemeChange(drawNet);
   addEventListener('resize', resize);
@@ -167,7 +173,9 @@ async function boot() {
     mode.preload(hash).then(ready, ready);
   };
   document.querySelectorAll('#startmodes [data-m]').forEach(b => { b.onclick = () => { if (b.dataset.m !== mode.key) pick(b.dataset.m); }; });
-  go.onclick = () => start(mode.owns(hash) ? hash : '');
+  // The audio is woken inside the tap itself, before anything loads: phones
+  // only allow sound to start there.
+  go.onclick = () => { unlockAudio(); start(mode.owns(hash) ? hash : ''); };
   pick(mode.key);
 }
 

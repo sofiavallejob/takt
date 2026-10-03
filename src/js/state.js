@@ -17,6 +17,7 @@ export const state = {
   T: 0,            // minutes since midnight, local time: the chord and the clock
   playing: false,  // live: listening; replay: the clock is running
   muted: false,    // live only: sound off while the trains keep moving
+  browserSound: true, // the page's own synth; off when OSC drives something else
   speed: 3,        // replay: simulated minutes per real second
 
   // per-frame

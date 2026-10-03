@@ -1,0 +1,33 @@
+# Rebuilds the Vienna U-Bahn and tram timetable every morning.
+#
+# Wiener Linien's live data cannot be read by a web page, so Vienna plays its
+# timetable, cut from Wiener Linien's open GTFS into data/vie/. No secrets.
+
+name: Vienna timetable
+
+on:
+  schedule:
+    - cron: '0 3 * * *'       # 05:00 in Vienna in summer, 04:00 in winter
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cut Wiener Linien's GTFS down to the U-Bahn and trams
+        run: python3 tools/build_vienna.py
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/vie
+          git diff --cached --quiet || git commit -m "Vienna timetable $(date -u +%F)"
+          git pull --rebase
+          git push

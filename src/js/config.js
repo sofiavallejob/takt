@@ -80,6 +80,20 @@ export const VIEWS = {
       'Jessheim', 'Sandvika', 'Spikkestad', 'Kongsberg', 'Tønsberg', 'Hønefoss'],
     small: ['Sandvika', 'Spikkestad', 'Jessheim', 'Asker'],
   },
+  vie: {
+    name: 'Vienna',
+    box: [16.24, 48.13, 16.52, 48.29],
+    cities: ['Stephansplatz', 'Karlsplatz', 'Westbahnhof', 'Praterstern', 'Leopoldau', 'Oberlaa', 'Seestadt',
+      'Ottakring', 'Simmering', 'Hütteldorf', 'Heiligenstadt', 'Floridsdorf', 'Siebenhirten', 'Schottenring', 'Kagran'],
+    small: ['Karlsplatz', 'Westbahnhof', 'Schottenring', 'Praterstern', 'Kagran'],
+  },
+  oslm: {
+    name: 'Oslo metro & tram',
+    box: [10.48, 59.83, 10.96, 60.0],
+    cities: ['Jernbanetorget', 'Majorstuen', 'Tøyen', 'Storo', 'Vestli', 'Ellingsrudåsen', 'Mortensrud',
+      'Bergkrystallen', 'Kolsås', 'Østerås', 'Sognsvann', 'Frognerseteren', 'Ljabru', 'Helsfyr', 'Rikshospitalet'],
+    small: ['Majorstuen', 'Tøyen', 'Storo', 'Helsfyr', 'Rikshospitalet'],
+  },
   hsl: {
     name: 'Helsinki metro & tram',
     box: [24.63, 60.135, 25.2, 60.255],
@@ -187,7 +201,13 @@ export const CREDITS_NO = `<h3>Norway, live</h3><ul>
   <li>Trains, timetables, expected and actual times, cancellations: <a href="https://developer.entur.org">Entur</a> journey planner (NLOD)</li>
   <li>Train GPS positions: Entur vehicle positions (NLOD)</li>
   <li>Regions: <a href="https://www.geoboundaries.org">geoBoundaries</a> NOR ADM1, from OpenStreetMap (ODbL)</li>
-  <li>Routes are drawn station to station, not along the track.</li></ul>`;
+  <li>Routes are drawn station to station, not along the track.</li>
+  <li>Oslo metro and trams: Ruter's planned, expected and actual times from Entur's journey planner (NLOD); outlines from <a href="https://www.geoboundaries.org">geoBoundaries</a> NOR ADM2 (CC BY 4.0)</li></ul>`;
+
+export const CREDITS_AT = `<h3>Vienna, to the timetable</h3><ul>
+  <li>U-Bahn and tram timetables: <a href="https://www.data.gv.at/katalog/dataset/wiener-linien-fahrplandaten-gtfs-wien">Wiener Linien GTFS</a>, open government data (CC BY 4.0), cut to the U-Bahn and trams once a day</li>
+  <li>Outlines: <a href="https://www.geoboundaries.org">geoBoundaries</a> AUT ADM3 (CC BY-SA 2.0)</li>
+  <li>Wiener Linien's live times cannot be read by a web page (no CORS), so Vienna runs exactly to plan: nothing is late or cancelled. Lines are drawn station to station.</li></ul>`;
 
 export const CREDITS_HEL = `<h3>Helsinki metro and trams, live</h3><ul>
   <li>Live positions and delays: <a href="https://digitransit.fi/en/developers/apis/5-realtime-api/vehicle-positions/high-frequency-positioning/">HSL high-frequency positioning</a> (CC BY 4.0)</li>

@@ -12,7 +12,8 @@ import { delayAt, query } from './geom.js';
 import {
   AC, play, click, nextStep, claimSlot, isRunning, sourness, roughness, distortion,
 } from './audio/engine.js';
-import { freqForLine, chordAt, mtof } from './audio/tuning.js';
+import { freqForLine, chordAt, mtof, ftom } from './audio/tuning.js';
+import { oscAt } from './audio/osc.js';
 import { flashLine } from './ui/sidebar.js';
 import { showLabel } from './render.js';
 
@@ -22,29 +23,36 @@ let lastHour = -1;
 
 export function resetHour() { lastHour = -1; }
 
+const lineName = g => g.name || `${g.from} to ${g.to}`;
+
 /** Sound one string. Returns milliseconds until it speaks, or -1 if the beat
- *  it wanted is already full. */
-function sound(g, tr, px, byHand, amp = 1) {
+ *  it wanted is already full. Whatever sounds is also sent as OSC, at the
+ *  moment it sounds. */
+function sound(g, tr, px, byHand, amp = 1, kind = 'cross', pos = 0.5) {
   if (!isRunning()) return 0;
   const B = state.B;
   const pan = ((px - B.x0) / (B.x1 - B.x0)) * 1.8 - 0.9;
   const freq = freqForLine(g, state.T);
+  const pluck = (wait, late) => oscAt(wait, '/takt/pluck', freq, ftom(freq), pan, amp, late, pos, kind, lineName(g));
 
-  if (byHand) { play(freq, AC.currentTime + 0.005, pan, 0, false, amp); return 0; }
+  if (byHand) { play(freq, AC.currentTime + 0.005, pan, 0, false, amp); pluck(0, 0); return 0; }
 
   const late = tr && !tr.canc ? Math.max(0, delayAt(tr, state.N)) : 0;
   const drag = Math.min(1.8, Math.pow(late / 20, 0.8)) * STEP;
   const s = nextStep(drag);
   if (!claimSlot(s.k)) return -1;
-  if (tr && tr.canc) { click(s.when, pan, amp); return (s.when - AC.currentTime) * 1000; }
+  const wait = (s.when - AC.currentTime) * 1000;
+  if (tr && tr.canc) { click(s.when, pan, amp); oscAt(wait, '/takt/click', pan, lineName(g)); return wait; }
   const detune = state.lateFx !== 'distort', crush = state.lateFx !== 'detune';
   play(freq, s.when, pan, detune ? sourness(late) : 0, detune && roughness(late) > 0.15, amp,
     crush ? distortion(late) : 0);
-  return (s.when - AC.currentTime) * 1000;
+  pluck(wait, late);
+  return wait;
 }
 
-/** Rate-limit a string, then sound it and set off its visual vibration. */
-export function trigger(g, tr, x, y, hitU, byHand, amp = 1) {
+/** Rate-limit a string, then sound it and set off its visual vibration.
+ *  `kind` says why it sounds: 'cross', 'junction', 'arrive' or 'hand'. */
+export function trigger(g, tr, x, y, hitU, byHand, amp = 1, kind = byHand ? 'hand' : 'cross') {
   const now = performance.now();
   const dv = +($('dens')?.value ?? 0.8);
   const rest = dv >= 1.15 ? 0 : Math.max(60, (1.2 - dv) * 2800);
@@ -58,7 +66,7 @@ export function trigger(g, tr, x, y, hitU, byHand, amp = 1) {
     if (state.soloLine && state.soloLine !== g) return false;
   }
 
-  const wait = sound(g, tr, x, byHand, amp);
+  const wait = sound(g, tr, x, byHand, amp, kind, hitU);
   if (wait < 0) return false;
   if (!byHand) budget[Math.min(budget.length - 1, g.cat)].v -= 1;
 
@@ -80,6 +88,7 @@ export function hourNote() {
   lastHour = h;
   if (first || !isRunning() || !state.playing || !state.moving.length) return;
   const ch = chordAt(state.T), s = nextStep(0);
+  oscAt((s.when - AC.currentTime) * 1000, '/takt/hour', ch.root, ch.name);
   play(mtof(ch.root - 12), s.when, 0, 0, false, 0.9);
   play(mtof(ch.root - 5), s.when + STEP * 2, 0, 0, false, 0.6);
 }

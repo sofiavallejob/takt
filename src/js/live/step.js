@@ -53,7 +53,7 @@ function arrive(tr, i) {
   const g = tr.g, p = pointAt(tr.path, tr.d[i]);
   const sd = g.stD.get(tr.rc[i]);
   const u = sd == null ? 0.5 : sd / Math.max(1e-6, g.len);
-  if (trigger(g, tr, p[0], p[1], u, false, state.plays === 'arrive' ? 0.85 : 0.55)) state.heard.arrivals++;
+  if (trigger(g, tr, p[0], p[1], u, false, state.plays === 'arrive' ? 0.85 : 0.55, 'arrive')) state.heard.arrivals++;
 }
 
 /** The train has passed station `code` (row i). Lines that meet its route
@@ -77,7 +77,7 @@ function junction(tr, i) {
   const p = pointAt(tr.path, tr.d[i]);
   hits.slice(0, 3).forEach((h, n) => {
     const go = () => {
-      if (trigger(h.g, tr, p[0], p[1], h.g.d[h.k] / Math.max(1e-6, h.g.len), false, h.cross ? 1 : 0.7)) {
+      if (trigger(h.g, tr, p[0], p[1], h.g.d[h.k] / Math.max(1e-6, h.g.len), false, h.cross ? 1 : 0.7, 'junction')) {
         state.heard.crossings++;
       }
     };

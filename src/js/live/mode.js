@@ -64,6 +64,7 @@ function afterUpdate() {
 
 function status() {
   if (switching) return 'Loading…';
+  if (active?.timetableOnly) return 'Running to the timetable';
   if (failing) return active && !active.liveOnly ? 'Live feed unreachable, playing the timetable' : 'Live feed unreachable, retrying';
   const age = (Date.now() - lastOk) / 1000;
   const gps = gpsCount ? `, ${gpsCount} on GPS` : '';

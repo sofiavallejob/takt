@@ -6,7 +6,8 @@
 <title>Takt: rail networks as strings</title>
 <meta name="description" content="Rail networks as strings. Every route is tuned by its length; trains pluck the lines they cross. Listen live to Finland, Norway, Sweden and the United States, or play back a recorded day in Austria, Germany, Mexico City, the Netherlands and Switzerland.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-dark-32.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +26,7 @@
     <div id="top">
       <div>
         <div class="brand">
-          <img class="logo" src="assets/icon-192.png" alt="Takt" width="22" height="22">
+          <img class="logo" data-logo src="assets/icon-dark-192.png" alt="Takt" width="22" height="22">
           <h1 id="title">Finland</h1>
         </div>
         <div id="clock" aria-hidden="true"></div>
@@ -97,6 +98,13 @@
       </div>
     </div>
 
+    <button id="tapsound" class="b" hidden>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>
+      </svg>
+      Tap for sound
+    </button>
+
     <div id="adv" role="dialog" aria-label="Advanced settings">
       <header>
         <h3>Advanced</h3>
@@ -144,6 +152,19 @@
       <label>Detuning <input type="range" id="fxSour" min="0" max="200" step="5" value="100"></label>
       <label>Distortion <input type="range" id="fxDist" min="0" max="1" step="0.05" value="0.8"></label>
 
+      <h4>Output</h4>
+      <div class="toggle">Browser sound
+        <button class="b" id="togsound" aria-pressed="true" title="The page's own synth. Turn it off to hear only what OSC drives.">On</button>
+      </div>
+      <label>OSC to localhost, port <input id="oscport" type="number" min="1" max="65535" step="1" value="8080" inputmode="numeric"></label>
+      <div class="oscrow">
+        <button class="b" id="oscgo" aria-pressed="false">Connect</button>
+        <span id="oscstat" role="status"><i></i><span>Not connected</span></span>
+      </div>
+      <p class="note">Every note, click and chord change goes out as OSC over a WebSocket to
+        <code>ws://localhost:PORT</code>. For Pure Data, SuperCollider, Max or a DAW, run
+        <code>node tools/osc-bridge.mjs</code>; there is a Pure Data patch in <code>pd/</code>.</p>
+
       <div class="row"><button class="b" id="advreset">Reset all</button></div>
     </div>
   </div>
@@ -163,7 +184,7 @@
 
 <div id="start">
   <div>
-    <img class="startlogo" src="assets/icon-192.png" alt="" width="64" height="64">
+    <img class="startlogo" data-logo src="assets/icon-dark-192.png" alt="" width="64" height="64">
     <h1>Takt</h1>
     <p class="sub">Rail networks as strings</p>
     <div class="ctry" id="startmodes" role="group" aria-label="Live or static">

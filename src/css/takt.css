@@ -43,7 +43,7 @@ body {
 #top > * { pointer-events: auto; }
 h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.01em; }
 
-/* The logo: the white round mark, which reads on both themes. */
+/* The logo: white on the dark theme, dark on the light one (theme.js swaps it). */
 .brand { display: flex; align-items: center; gap: 7px; }
 .brand .logo { flex-shrink: 0; display: block; }
 .startlogo { display: block; margin: 0 auto 10px; }
@@ -104,6 +104,15 @@ body[data-mode="replay"] #bar { cursor: pointer; touch-action: none; }
 #togtheme .moon { display: none; }
 :root[data-theme="dark"] #togtheme .sun { display: none; }
 :root[data-theme="dark"] #togtheme .moon { display: block; }
+
+/* Shown while the browser holds the sound back (after a call, the lock screen,
+   or a tap that came too early): one tap brings it back. */
+#tapsound {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 7;
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 15px;
+  background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+}
+#tapsound[hidden] { display: none; }
 
 /* ---------- bottom bar ---------- */
 #bottom {
@@ -251,6 +260,17 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 #play[aria-pressed="true"] .on { display: none; }
 #play[aria-pressed="true"] .off { display: block; }
 #adv .toggle .b { font-size: 12.5px; padding: 3px 12px; }
+#adv input[type="number"] {
+  width: 72px; font: inherit; font-size: 13px; color: var(--ink); background: var(--chip);
+  border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px; flex-shrink: 0;
+}
+#adv .oscrow { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; }
+#adv .oscrow .b { font-size: 12.5px; padding: 3px 12px; }
+#oscstat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+#oscstat i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+#oscstat[data-s="on"] i { background: #2a9d55; }
+#oscstat[data-s="connecting"] i, #oscstat[data-s="waiting"] i { background: #d9a400; }
+#adv code { font-size: 11px; }
 
 /* ---------- overlays ---------- */
 #start {

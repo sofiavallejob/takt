@@ -51,6 +51,10 @@ export function setTheme(mode, persist = true) {
     btn.setAttribute('aria-pressed', String(theme.dark));
     btn.setAttribute('aria-label', theme.dark ? 'Switch to light mode' : 'Switch to dark mode');
   }
+  // The logo: white on the dark theme, dark on the light one.
+  for (const img of document.querySelectorAll('img[data-logo]')) {
+    img.src = theme.dark ? 'assets/icon-192.png' : 'assets/icon-dark-192.png';
+  }
   if (persist) { try { localStorage.setItem(KEY, mode); } catch {} }
   for (const fn of listeners) fn();
 }
