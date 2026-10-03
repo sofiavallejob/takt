@@ -44,6 +44,8 @@ remembers where each mode was.
 * Vienna live: Wiener Linien's live times cannot be read by a web page (no
   CORS), so Vienna plays its timetable for now; a small relay (a free
   Cloudflare Worker, say) would make it live.
+* MIDI out from the browser (Web MIDI): one click, no bridge, straight into
+  Ableton, Pure Data or SuperCollider through a virtual MIDI port.
 * Oslo's buses: Ruter shares no bus positions, and a day of bus journeys from
   Entur is about a gigabyte.
 * Boston's commuter rail, the LIRR and Metro-North, which run to timetables and
@@ -114,28 +116,109 @@ button.
 
 ## OSC out: play the trains with your own instruments
 
-Every note Takt plays can also go out as **OSC** (Open Sound Control), live or
-static, so Pure Data, SuperCollider, Max, TouchDesigner, a DAW or anything else
-can play the trains its own way.
+Every note Takt plays can also be sent out as **OSC** (Open Sound Control), so
+you can play the trains with **Pure Data**, **SuperCollider**, Max, TouchDesigner
+or anything else that listens for OSC, in Live or Static.
 
-A web page cannot send UDP, so Takt sends OSC over a WebSocket to your own
-computer, and a small bridge passes it on as ordinary UDP OSC:
+### Why there is a "bridge"
+
+A web page is not allowed to send OSC straight to other programs: browsers
+forbid it, for every website, for safety. A page *can* talk to your own
+computer over a WebSocket, so Takt does that, and a tiny program, the
+**bridge**, passes every message on as ordinary OSC:
 
 ```
-Takt (browser) ──WebSocket──▶ ws://localhost:8080 ──bridge──▶ udp 127.0.0.1:9000 ──▶ your patch
+Takt in the browser ──▶ port 8080 ──▶ [ bridge ] ──▶ port 9000 ──▶ Pure Data / SuperCollider / …
+                       (you type this     (runs in       (your patch
+                        in Takt)           Terminal)       listens here)
 ```
 
-1. Start the bridge (needs only [Node](https://nodejs.org), no packages):
-   ```sh
-   node tools/osc-bridge.mjs                          # ws 8080 -> udp 9000
-   node tools/osc-bridge.mjs --to 57120               # to SuperCollider
-   node tools/osc-bridge.mjs --to 9000 --to 7400      # to two programs at once
-   ```
-2. In Takt: **Advanced → Output**, port `8080`, **Connect**. The light turns
-   green when it is sending. **Browser sound** turns the page's own synth off,
-   so only your patch is heard. Both are remembered.
-3. Software that reads OSC over WebSocket itself (TouchDesigner's WebSocket DAT,
-   Max's `node.script`, osc.js) can skip the bridge and listen on the port directly.
+There are **two port numbers**, and they belong to different things:
+
+| Port | Who listens on it | Where you set it |
+| --- | --- | --- |
+| **8080** (the bridge port) | the bridge, waiting for Takt | in Takt: **Advanced → Output** · and in the bridge command: `--port 8080` |
+| **9000** (the patch port) | your patch or program | in the Pd patch's **OSC port** box (or SuperCollider: `57120`) · and in the bridge command: `--to 9000` |
+
+Any free numbers work, as long as each pair matches.
+
+### What you need (once)
+
+1. **Chrome or Firefox** on a computer. Safari may refuse to connect the
+   published site to your own computer; phones cannot run the bridge.
+2. **Node.js**, which runs the bridge. Download the **LTS** version from
+   [nodejs.org](https://nodejs.org) and install it like any app. To check: open
+   **Terminal** (Mac: Spotlight → "Terminal"; Windows: "Command Prompt") and type
+   `node -v`; it should answer with a version like `v22.11.0`.
+3. **The Takt folder** on your computer, because the bridge and the patches are
+   in it. On GitHub: **Code → Download ZIP**, then unzip it (say, onto your Desktop).
+4. **The program you want to play with**:
+   * **Pure Data** (vanilla, 0.54 or newer): [puredata.info/downloads](https://puredata.info/downloads/pure-data).
+     Nothing else to install: the patch uses only what comes with Pd.
+   * or **SuperCollider**: [supercollider.github.io](https://supercollider.github.io/downloads).
+
+### Every time: three steps
+
+**1 · Start the bridge.** Open Terminal and type (with your folder's location):
+
+```sh
+cd ~/Desktop/takt                      # the Takt folder
+node tools/osc-bridge.mjs              # bridge port 8080, patch port 9000
+```
+
+It answers `Takt OSC bridge: ws://localhost:8080  ->  udp 127.0.0.1:9000`.
+**Leave this window open**: closing it stops the bridge. Other ports:
+`node tools/osc-bridge.mjs --port 8020 --to 8021`. To SuperCollider: `--to 57120`.
+To two programs at once: `--to 9000 --to 57120`.
+
+**2 · Open your patch.**
+* **Pure Data:** open `pd/takt.pd`. The **OSC port** box at the top says `9000`;
+  change it if your bridge sends elsewhere. Pd's audio switches on by itself.
+* **SuperCollider:** open `sc/takt.scd`, select everything, press **Cmd+Enter**
+  (Ctrl+Enter on Windows). It says *Takt: listening for the trains on port 57120*.
+
+**3 · Connect Takt.** Press **Start listening**, open **Advanced → Output**,
+make sure the port is the bridge port (`8080`), and click **Connect**. The light
+turns **green**: *Sending to ws://localhost:8080*. Optional: **Browser sound → Off**,
+so you only hear your patch. Takt remembers all of this, and connects again by
+itself next time.
+
+**It works when:** the Terminal says `Takt connected` and then counts messages
+(`611 messages passed on`); in Pd the **notes** light flashes and **trains**
+counts the network once a second; SuperCollider prints `… trains moving in …`.
+
+### The Pure Data patch
+
+`pd/takt.pd` is a control panel; everything that makes sound is inside it.
+
+* **Synth** menu, six sounds (each a small patch in `pd/voices/`):
+  **Pluck** (a plucked string) · **Ambient pad** (two detuned saws and a sub,
+  slow to rise and fall) · **Bell** (FM, bright strike that mellows) ·
+  **Glass** (pure sines, long) · **Mallet** (marimba-like) · **Breath** (noise
+  tuned through a narrow filter, airy).
+* **Preset** menu, ready-made combinations of synth and effects: **Clean pluck**,
+  **Ambient**, **Echo chamber**, **Bells in a hall**, **Dry percussion**,
+  **Night breath**.
+* **Sliders**: Volume · Attack and Release (stretch or shorten each synth's
+  envelope; 1 = as designed) · Brightness (a low-pass on every voice) · Late
+  detune (cents out of tune per minute a train is late) · Delay time, feedback
+  and mix · Reverb mix, size and damping (Pd's own `rev3~`).
+* **Readouts**: a light for every note, the network's name, trains moving, the
+  share running late, and the output level.
+
+**Your own sound:** copy any file in `pd/voices/`, change what is between the
+inlet and the two `outlet~`s (it receives `freq midi pan amp late pos`), and
+put its name in the engine's `clone` line. `tools/build_pd.py` rebuilds the
+whole patch from one description, if you prefer to edit it as code.
+
+### Other software
+
+* **TouchDesigner, Max (`node.script`), Open Stage Control**, and anything that
+  reads OSC over a WebSocket: no bridge needed; listen as a WebSocket server on
+  the port you type into Takt.
+* **Ableton Live** does not receive OSC by itself; it needs Max for Live (and the
+  bridge). Sending MIDI from the browser instead (no bridge, one click) is on the
+  roadmap.
 
 ### Messages
 
@@ -146,26 +229,22 @@ Takt (browser) ──WebSocket──▶ ws://localhost:8080 ──bridge──�
 | `/takt/hour` | the chord changes on the hour | `f` root (MIDI) · `s` chord name |
 | `/takt/state` | about once a second | `f` trains moving · `f` share running late · `f` share cancelled · `f` where the traffic leans (−1 … 1) · `f` clock (minutes since midnight) · `s` network · `s` mode (`live` or `static`) |
 
-Messages are sent at the moment each note sounds, on the same beat (late trains
-drag behind it). Expect a few milliseconds of jitter: fine for playing, not
-sample-accurate. Chrome and Firefox allow the published site to connect to
-`localhost`; Safari may not, and there a local copy (`npm start`) always works.
+Messages go out at the moment each note sounds, on the same beat as the browser
+(late trains drag behind it). Expect a few milliseconds of jitter: fine for
+playing, not sample-accurate.
 
-### The Pure Data patch
+### If it does not work
 
-`pd/takt.pd` (Pd vanilla 0.47 or newer) listens on UDP port 9000, the bridge's
-default. Open it with the bridge running and Takt connected:
-
-* **notes** play on 16 voices (`pd/takt-voice.pd`): a fundamental and a soft
-  octave through a gentle low-pass, plucked, panned where the train is, and
-  detuned by 1.5 cents for every minute the train is late (up to 50);
-* **cancelled trains** are short bursts of filtered noise;
-* **the hour** rings a low tone on the new chord's root;
-* a **stereo echo** under everything, a **volume** box, and the size of the
-  network and its lateness shown as numbers, ready to patch into anything.
-
-It is a starting point: every message arrives already unpacked, so swapping the
-voice for your own synth is one object.
+| What you see | What to do |
+| --- | --- |
+| Terminal: `node: command not found` | Node.js is not installed (see *What you need*), or Terminal was open before you installed it: close and reopen it. |
+| Terminal: `Cannot find module …osc-bridge.mjs` | Terminal is not in the Takt folder. `cd` to the folder that contains `tools/`. |
+| Terminal: `Port 8080 is already in use` | Something else uses it. Pick another, e.g. `--port 8030`, and type `8030` in Takt. |
+| Takt's light stays **yellow** ("Nothing listening yet") | The bridge is not running, or Takt's port is not the bridge's `--port`. |
+| Light is yellow in **Safari** although the bridge runs | Safari blocks it. Use Chrome or Firefox, or run Takt locally (`npm start`, then `http://localhost:8000`). |
+| Terminal counts messages, but **Pd is silent** | Pd's **OSC port** box must be the bridge's `--to` number; Pd's **DSP** must be on; check **Media → Audio Settings** for the right output. |
+| SuperCollider prints nothing | Use `--to 57120` in the bridge, and run the whole file (select all, Cmd+Enter). |
+| It worked, then stopped | The Terminal window was closed, or the computer slept. Start the bridge again; Takt reconnects by itself. |
 
 ## Live: the data, and what is made of it
 
@@ -443,10 +522,13 @@ data/
   replay/index.json     static manifest: order, names, file paths
   replay/*.bin          one gzipped JSON pack per recorded network
 pd/
-  takt.pd               Pure Data patch: the trains as OSC, played on a small synth
-  takt-voice.pd         one voice of it
+  takt.pd               Pure Data control panel: six synths, presets, delay, reverb
+  voices/               the six synths, one small patch each
+sc/
+  takt.scd              SuperCollider: the trains as OSC, played with a reverb
 tools/
   osc-bridge.mjs        WebSocket to UDP OSC, for the patch and other software
+  build_pd.py           writes the Pure Data patch and its voices
   build_sto.py build_hel.py build_sf.py    cut the daily timetables
   build_patterns.py     stopping patterns for New York and Los Angeles
   build_vienna.py       Vienna's U-Bahn and tram timetable, from Wiener Linien's GTFS
